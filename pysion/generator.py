@@ -46,10 +46,13 @@ class ScoredName:
     score: float
     strategy: str
     sources: tuple[str, ...]
+    # Texto a mostrar cuando un preset cambia el caso o añade un calificador.
+    # Si es None, se muestra el nombre capitalizado (comportamiento por defecto).
+    display_override: str | None = None
 
     @property
     def display(self) -> str:
-        return self.name.capitalize()
+        return self.display_override if self.display_override is not None else self.name.capitalize()
 
 
 @dataclass

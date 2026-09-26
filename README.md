@@ -6,6 +6,8 @@ Toma palabras al azar de diccionarios temáticos, las combina por **sílabas** y
 
 También puede:
 
+- **Adaptar el nombre a su propósito** con `--type`: empresa, software, emprendimiento, usuario, script, ciudad, pueblo, barrio o calle. Ajusta el formato (mayúsculas/minúsculas) y puede añadir un calificador ("Cipher Security"). Consulta [Tipos de nombre](#tipos-de-nombre).
+
 - **Inventar palabras a partir de una palabra concreta** (por ejemplo "python" → *Pyxel*, *Pyrus*, *Metathon*). Consulta [Palabras base](#palabras-base).
 - **Inventar palabras que suenen a un idioma**: latín, inglés, español, portugués, italiano, alemán o ruso (transliterado a nuestras letras). Consulta [Idiomas](#idiomas).
 - **Crear tus propios diccionarios** a partir de ficheros (TXT, CSV, PDF, HTML) o de páginas web. Consulta [Crear diccionarios personalizados](#crear-diccionarios-personalizados).
@@ -35,6 +37,7 @@ Cada fila muestra el nombre, su puntuación de armonía (0-100), la estrategia u
 - [Cómo funciona](#cómo-funciona)
 - [Instalación](#instalación)
 - [Uso](#uso)
+- [Tipos de nombre](#tipos-de-nombre)
 - [Palabras base](#palabras-base)
 - [Idiomas](#idiomas)
 - [Crear diccionarios personalizados](#crear-diccionarios-personalizados)
@@ -116,6 +119,12 @@ Que suene a italiano:
 python3 -m pysion -l it
 ```
 
+Para un tipo concreto (empresa, usuario, ciudad…):
+
+```bash
+python3 -m pysion --type empresa -w cipher
+```
+
 Nombres cortos y de alta puntuación, exportados a CSV:
 
 ```bash
@@ -139,6 +148,42 @@ Solo algunas estrategias:
 ```bash
 python3 -m pysion -s blend,root_suffix
 ```
+
+---
+
+## Tipos de nombre
+
+Con `--type` eliges para qué es el nombre. Cada tipo ajusta el **formato** y algunos **valores por defecto** (longitud e idiomas), pero reutiliza el mismo motor: no cambia cómo se inventan las palabras, solo cómo se presentan y qué defaults parten.
+
+| Tipo | Formato | Ejemplo |
+|---|---|---|
+| `empresa` | Título + calificador opcional | *Cipher Security*, *Ciproto Systems* |
+| `software` | Título + calificador opcional | *Vequa Suite*, *Verotrix* |
+| `emprendimiento` | Título + calificador opcional | *Vequa Labs*, *Vetolo* |
+| `usuario` | minúsculas, sin calificador | *omnitex*, *jacan* |
+| `script` | minúsculas, sin calificador | *bacium*, *bastema* |
+| `ciudad` | Título, sabor latino/italiano | *Valovo*, *Bellaxus* |
+| `pueblo` | Título, sabor español/latino | *Lealia*, *Fortes* |
+| `barrio` | Título, sabor español/italiano | *Brilome*, *Favidra* |
+| `calle` | Título, sabor español/latino | *Crile*, *Nuevober* |
+
+```bash
+python3 -m pysion --type empresa -w cipher -d cyber.txt --no-themes -n 8 --seed 5
+```
+
+```text (algunas de las 8 líneas)
+  3. Ciproto Systems   92.5  [syllable_mix: cipher + protocol + crypto]
+  6. Cillo Solutions   90.4  [root_suffix: cipher + ello]
+  8. Cepher Security   87.2  [mutate: cipher]
+```
+
+Cómo funciona:
+
+- **Calificador**: en los tipos comerciales, una parte de los nombres recibe una palabra aparte (`Security`, `Technologies`, `Labs`, `Suite`…), elegida al azar. Es lo que los sufijos pegados (`-ix`, `-ia`) no pueden dar. Solo afecta a lo que se muestra: el nombre base (y el dominio que comprobarías) sigue siendo la palabra inventada. En el pipe hacia [`pysion.check`](#comprobar-disponibilidad), se comprueba ese nombre base, no el calificador.
+- **Formato**: `usuario` y `script` salen en minúsculas (un usuario no es *Cipher* sino *cipher*); el resto en Título.
+- **Idiomas y longitud por defecto**: por ejemplo `ciudad` usa latín e italiano y nombres algo más largos. Todo esto son solo valores por defecto: si indicas `-l`, `-t`, `--min-length` o `--max-length`, tus valores mandan.
+
+Los tipos están definidos en [`pysion/data/presets.json`](pysion/data/presets.json) y son editables: puedes cambiar los calificadores o añadir un tipo nuevo sin tocar código.
 
 ---
 
@@ -456,14 +501,15 @@ python3 -m pysion -w cipher -d cyber.txt --no-themes -n 30 --history vistos.txt 
 | Opción | Por defecto | Descripción |
 |---|---|---|
 | `-n`, `--count` | `20` | Cantidad de nombres a generar (1-1000) |
+| `--type TIPO` | — | [Tipo de nombre](#tipos-de-nombre): `empresa`, `software`, `emprendimiento`, `usuario`, `script`, `ciudad`, `pueblo`, `barrio`, `calle` |
 | `-t`, `--themes` | todos | Temas incluidos, separados por comas |
 | `-d`, `--dict FICHERO` | — | Diccionario adicional (una palabra por línea). Se puede repetir |
 | `-l`, `--lang` | — | [Idiomas](#idiomas) separados por comas: `la`, `en`, `es`, `pt`, `it`, `de`, `ru` |
 | `-w`, `--word PALABRA` | — | [Palabra base](#palabras-base): todos los nombres derivarán de ella. Se puede repetir |
 | `--no-themes` | no | No usar los temas incluidos; solo `--dict`, `--word` y/o `--lang`. `--only-dicts` sigue funcionando como alias |
 | `-s`, `--strategies` | todas | Estrategias separadas por comas |
-| `--min-length` | `4` | Longitud mínima del nombre (3-20) |
-| `--max-length` | `10` | Longitud máxima del nombre (3-20) |
+| `--min-length` | `4` | Longitud mínima del nombre (3-20; el `--type` puede cambiar el defecto) |
+| `--max-length` | `10` | Longitud máxima del nombre (3-20; el `--type` puede cambiar el defecto) |
 | `--min-score` | `70` | Puntuación mínima de armonía (0-100) |
 | `--starts-with` | — | Obliga a que el nombre empiece por esa/s letra/s |
 | `--seed` | aleatoria | Semilla para obtener siempre los mismos resultados |
@@ -550,6 +596,7 @@ pysion/data/
 ├── prefixes.txt        # genéricos: neo, evo, omni, nova, zen…
 ├── suffixes.txt        # genéricos: ia, io, ix, ex, ora, ium…
 ├── stopwords.txt       # palabras vacías que descarta pysion.builder
+├── presets.json        # tipos de nombre para --type
 ├── themes/
 │   ├── latin.txt       # lux, terra, veritas, helios…
 │   ├── naturaleza.txt  # aurora, cedar, luna, brisa…
@@ -604,6 +651,7 @@ pysion/
 │   ├── lexicon.py       # carga segura de diccionarios y palabras base
 │   ├── output.py        # salida en texto, JSON o CSV, y estadísticas
 │   ├── phonetics.py     # normalización, patrón CV, sílabas, dígrafos, unión suave
+│   ├── presets.py       # tipos de nombre (--type): formato y calificadores
 │   ├── rules.py         # reglas de pronunciabilidad
 │   ├── scoring.py       # puntuación de armonía
 │   ├── strategies.py    # estrategias de generación (con soporte de palabra base)
@@ -616,6 +664,7 @@ pysion/
     ├── test_generator.py       # generador, léxico y CLI
     ├── test_languages.py       # idiomas, transliteración y calibración
     ├── test_phonetics.py       # sílabas, normalización, unión suave
+    ├── test_presets.py         # tipos de nombre (--type)
     └── test_rules_scoring.py   # reglas y puntuación
 ```
 
@@ -630,6 +679,7 @@ El constructor de diccionarios es un subpaquete independiente: comparte con el g
 - **Corte por sílabas.** `syllabify()` usa una aproximación ortográfica (lu-na, sil-va, ma-trix). Los grupos inseparables como `tr` o `bl` se mantienen juntos, lo que da uniones naturales (valor + altus → *Vatus*).
 - **Reglas y puntuación van separadas.** Puedes endurecer o relajar una sin romper la otra.
 - **Palabras base inyectadas, no filtradas.** Con `-w`, la palabra base se pasa a la estrategia en cada intento, en vez de generar al azar y quedarse con los nombres que la contengan. Así no se desperdician intentos, y funciona aunque la palabra base sea una entre miles del diccionario.
+- **Tipos como datos.** Los `--type` viven en un JSON: definen formato, calificadores y defaults, sin tocar el motor de generación. El calificador solo cambia la presentación, así el pipe y la comprobación de dominios siguen usando el nombre base.
 - **Idiomas como datos, no como código.** Cada idioma es un directorio con ficheros de texto y un JSON. Añadir o ajustar uno no requiere tocar Python, y las reglas de un idioma no afectan a los demás.
 - **Reglas fonéticas basadas en la sílaba.** Un grupo de consonantes interno es válido si se puede dividir en *final de sílaba + inicio de sílaba* válidos para el idioma. Es más fiel a cómo funcionan los idiomas que un simple límite de consonantes seguidas.
 - **Fusión permisiva de idiomas.** Al combinar idiomas, las listas de lo permitido se unen y las de lo prohibido se intersecan. Así ningún idioma del grupo queda bloqueado por las restricciones de otro.
@@ -767,7 +817,7 @@ python3 -m pysion -n 100 -f csv > nombres.csv || echo "Revisa los filtros (códi
 python3 -m unittest discover -s tests -v
 ```
 
-Cubren la división en sílabas, la unión suave, cada regla de rechazo, la puntuación, la reproducibilidad con semilla, la carga de diccionarios (temas desconocidos, ficheros inexistentes, acentos), las palabras base (cada nombre deriva de una, validación, uso sin temas), los idiomas (carga y validación de perfiles, rechazo de rutas no permitidas, fusión de reglas, transliteración y calibración con palabras reales), el constructor de diccionarios (cada formato, cabeceras y columnas de CSV, filtros, fusión sin duplicados, escritura atómica y descargas web) y los códigos de salida.
+Cubren la división en sílabas, la unión suave, cada regla de rechazo, la puntuación, la reproducibilidad con semilla, la carga de diccionarios (temas desconocidos, ficheros inexistentes, acentos), las palabras base (cada nombre deriva de una, validación, uso sin temas), los idiomas (carga y validación de perfiles, rechazo de rutas no permitidas, fusión de reglas, transliteración y calibración con palabras reales), los tipos de nombre (carga, formato, calificador y prioridad de las opciones del usuario), el constructor de diccionarios (cada formato, cabeceras y columnas de CSV, filtros, fusión sin duplicados, escritura atómica y descargas web) y los códigos de salida.
 
 Los tests web no necesitan internet: levantan un servidor HTTP local. El test de PDF se omite si `pypdf` no está instalado. Los del comprobador de disponibilidad tampoco tocan la red: simulan las respuestas HTTP.
 

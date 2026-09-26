@@ -21,6 +21,7 @@ from pysion.languages import LanguageProfile, available_languages, load_language
 from pysion.lexicon import available_themes, build_lexicon, load_wordfile, normalize_anchors
 from pysion.output import RENDERERS, render_stats
 from pysion.phonetics import normalize
+from pysion.presets import Preset, apply_format, available_presets, load_preset
 from pysion.rules import PhoneticRules
 from pysion.strategies import STRATEGIES
 
@@ -57,7 +58,7 @@ def _csv_list(value: str) -> list[str]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="pysion",
-        description="Genera nombres inventados y armónicos para marcas/empresas.",
+        description="Genera nombres inventados y armónicos para marcas, productos, lugares, usuarios y más.",
     )
     parser.add_argument("-n", "--count", type=bounded_int(1, 1000), default=20,
                         help="cantidad de nombres (1-1000, por defecto 20)")
@@ -74,10 +75,15 @@ def build_parser() -> argparse.ArgumentParser:
                         help="palabra base: todos los nombres derivarán de ella; repetible")
     parser.add_argument("--no-themes", "--only-dicts", dest="no_themes", action="store_true",
                         help="no usar los temas incluidos; solo --dict, --word y/o --lang")
+    parser.add_argument("--type", dest="preset", metavar="TIPO",
+                        help="tipo de nombre (fija caso, calificador y valores por defecto). "
+                             f"Disponibles: {', '.join(available_presets()) or '(ninguno)'}")
     parser.add_argument("-s", "--strategies", type=_csv_list, default=list(STRATEGIES),
                         help=f"estrategias separadas por coma. Disponibles: {', '.join(STRATEGIES)}")
-    parser.add_argument("--min-length", type=bounded_int(3, 20), default=4)
-    parser.add_argument("--max-length", type=bounded_int(3, 20), default=10)
+    parser.add_argument("--min-length", type=bounded_int(3, 20), default=None,
+                        help="longitud mínima (por defecto 4, o la del --type)")
+    parser.add_argument("--max-length", type=bounded_int(3, 20), default=None,
+                        help="longitud máxima (por defecto 10, o la del --type)")
     parser.add_argument("--min-score", type=bounded_int(0, 100), default=70,
                         help="puntuación mínima de armonía 0-100 (por defecto 70)")
     parser.add_argument("--starts-with", default="", help="forzar letra/s inicial/es")
@@ -94,19 +100,26 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _resolve_length(value: int | None, preset_value: int | None, fallback: int) -> int:
+    """Longitud efectiva: la del usuario manda, luego el preset, luego el defecto."""
+    if value is not None:
+        return value
+    return preset_value if preset_value is not None else fallback
+
+
 def _config_from_args(args: argparse.Namespace,
-                      languages: list[LanguageProfile]) -> GeneratorConfig:
+                      languages: list[LanguageProfile],
+                      preset: Preset | None) -> GeneratorConfig:
     starts_with = normalize(args.starts_with)
     if args.starts_with and not starts_with:
         raise ConfigError("--starts-with debe contener letras")
+    min_len = _resolve_length(args.min_length, preset.min_length if preset else None, 4)
+    max_len = _resolve_length(args.max_length, preset.max_length if preset else None, 10)
     return GeneratorConfig(
         count=args.count,
         min_score=float(args.min_score),
         strategies=tuple(args.strategies),
-        rules=merge_rules(
-            PhoneticRules(min_length=args.min_length, max_length=args.max_length),
-            languages,
-        ),
+        rules=merge_rules(PhoneticRules(min_length=min_len, max_length=max_len), languages),
         starts_with=starts_with,
         exclude=_load_history(args.history),
     )
@@ -140,8 +153,13 @@ def _selected_themes(args: argparse.Namespace) -> list[str] | None:
 
 
 def run(args: argparse.Namespace) -> int:
+    preset = load_preset(args.preset) if args.preset else None
+    # Los idiomas del preset solo se aplican si el usuario no indicó -l.
+    if preset and preset.languages and not args.langs:
+        args.langs = list(preset.languages)
+
     languages = load_languages(args.langs)
-    config = _config_from_args(args, languages)
+    config = _config_from_args(args, languages, preset)
     lexicon = build_lexicon(themes=_selected_themes(args), extra_files=args.dicts,
                             anchors=args.words, languages=languages)
     logger.debug("Léxico: %d palabras, %d prefijos, %d sufijos, palabras base: %s, idiomas: %s",
@@ -151,6 +169,8 @@ def run(args: argparse.Namespace) -> int:
 
     rng = random.Random(args.seed)  # no criptográfico: no se necesita
     result = generate(lexicon, config, rng)
+    if preset:
+        apply_format(result, preset, rng)
 
     RENDERERS[args.format](result, sys.stdout)
     if args.stats:
