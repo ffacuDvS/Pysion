@@ -11,3 +11,7 @@ class LexiconError(PysionError):
 
 class ConfigError(PysionError):
     """Configuración inválida (parámetros incoherentes)."""
+
+
+class SourceError(PysionError):
+    """Error al leer una fuente para construir diccionarios (fichero o URL)."""

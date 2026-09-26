@@ -29,7 +29,7 @@ EXIT_OK, EXIT_PARTIAL, EXIT_USAGE, EXIT_LEXICON, EXIT_INTERRUPTED = 0, 1, 2, 3, 
 logger = logging.getLogger("pysion")
 
 
-def _bounded_int(low: int, high: int):
+def bounded_int(low: int, high: int):
     """Tipo argparse: entero dentro de [low, high]."""
     def parse(value: str) -> int:
         try:
@@ -59,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="pysion",
         description="Genera nombres inventados y armónicos para marcas/empresas.",
     )
-    parser.add_argument("-n", "--count", type=_bounded_int(1, 1000), default=20,
+    parser.add_argument("-n", "--count", type=bounded_int(1, 1000), default=20,
                         help="cantidad de nombres (1-1000, por defecto 20)")
     parser.add_argument("-t", "--themes", type=_csv_list, default=None,
                         help=f"temas separados por coma. Disponibles: {', '.join(available_themes())}")
@@ -76,9 +76,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help="no usar los temas incluidos; solo --dict, --word y/o --lang")
     parser.add_argument("-s", "--strategies", type=_csv_list, default=list(STRATEGIES),
                         help=f"estrategias separadas por coma. Disponibles: {', '.join(STRATEGIES)}")
-    parser.add_argument("--min-length", type=_bounded_int(3, 20), default=4)
-    parser.add_argument("--max-length", type=_bounded_int(3, 20), default=10)
-    parser.add_argument("--min-score", type=_bounded_int(0, 100), default=70,
+    parser.add_argument("--min-length", type=bounded_int(3, 20), default=4)
+    parser.add_argument("--max-length", type=bounded_int(3, 20), default=10)
+    parser.add_argument("--min-score", type=bounded_int(0, 100), default=70,
                         help="puntuación mínima de armonía 0-100 (por defecto 70)")
     parser.add_argument("--starts-with", default="", help="forzar letra/s inicial/es")
     parser.add_argument("--seed", type=int, default=None,

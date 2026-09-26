@@ -8,6 +8,7 @@ También puede:
 
 - **Inventar palabras a partir de una palabra concreta** (por ejemplo "python" → *Pyxel*, *Pyrus*, *Metathon*). Consulta [Palabras base](#palabras-base).
 - **Inventar palabras que suenen a un idioma**: latín, inglés, español, portugués, italiano, alemán o ruso (transliterado a nuestras letras). Consulta [Idiomas](#idiomas).
+- **Crear tus propios diccionarios** a partir de ficheros (TXT, CSV, PDF, HTML) o de páginas web. Consulta [Crear diccionarios personalizados](#crear-diccionarios-personalizados).
 
 ```text
 $ python3 -m pysion -n 8 --seed 42
@@ -24,7 +25,7 @@ $ python3 -m pysion -n 8 --seed 42
 Cada fila muestra el nombre, su puntuación de armonía (0-100), la estrategia usada y las palabras de origen.
 
 - Python **3.10 o superior**
-- **Solo biblioteca estándar**: no hay dependencias que instalar
+- **Solo biblioteca estándar**: no hay dependencias que instalar. La única excepción es opcional: [`pypdf`](https://pypi.org/project/pypdf/), y solo si quieres extraer palabras de ficheros PDF.
 
 ---
 
@@ -35,6 +36,7 @@ Cada fila muestra el nombre, su puntuación de armonía (0-100), la estrategia u
 - [Uso](#uso)
 - [Palabras base](#palabras-base)
 - [Idiomas](#idiomas)
+- [Crear diccionarios personalizados](#crear-diccionarios-personalizados)
 - [Opciones](#opciones)
 - [Estrategias de generación](#estrategias-de-generación)
 - [Reglas de pronunciabilidad](#reglas-de-pronunciabilidad)
@@ -70,6 +72,12 @@ python3 --version   # debe ser 3.10 o superior
 ```
 
 No hace falta `pip install` ni dar permisos de ejecución: el paquete se ejecuta con `python3 -m pysion` desde la raíz del proyecto.
+
+Opcional, solo para leer PDF con el [constructor de diccionarios](#crear-diccionarios-personalizados):
+
+```bash
+python3 -m pip install pypdf
+```
 
 ---
 
@@ -269,6 +277,108 @@ Las reglas de cada idioma están ajustadas para aceptar sus propias palabras rea
 
 ---
 
+## Crear diccionarios personalizados
+
+`pysion.builder` extrae palabras de ficheros o páginas web y las añade a un diccionario `.txt`, listo para usar con `pysion`:
+
+```bash
+python3 -m pysion.builder FUENTE [FUENTE...] -o mi_diccionario.txt
+```
+
+| Fuente | Qué se extrae |
+|---|---|
+| `.txt`, `.md`, `.text` | Todo el texto (UTF-8; si no lo es, se lee como Latin-1 con un aviso) |
+| `.csv`, `.tsv` | Todas las celdas, o una columna con `--column`. El separador (`,` `;` tab `\|`) se detecta solo |
+| `.html`, `.htm` | El texto visible (sin `<script>`, `<style>` ni `<head>`) |
+| `.pdf` | El texto de todas las páginas (requiere `pypdf`) |
+| URL `http(s)://` | El texto visible de la página, o el contenido si es texto plano |
+
+Proceso:
+
+1. **Extrae** el texto de cada fuente y lo separa en palabras. `Жар-птица` da *zhar* y *ptitsa*; `L'Aurora` da *aurora*.
+2. **Normaliza** igual que los diccionarios de pysion: minúsculas, sin acentos y con el cirílico transliterado.
+3. **Filtra**:
+   - longitud entre 3 y 14 letras;
+   - descarta las palabras vacías (artículos, preposiciones y pronombres de los 7 idiomas, además de ruido web como *editar* o *isbn*), definidas en [`pysion/data/stopwords.txt`](pysion/data/stopwords.txt);
+   - frecuencia mínima opcional.
+4. **Ordena** de más a menos frecuente y **añade** al `.txt` solo las palabras que aún no contiene.
+
+### Ejemplos
+
+Revisar primero qué palabras saldrían, sin escribir nada:
+
+```bash
+python3 -m pysion.builder libro.pdf --dry-run
+```
+
+Las 200 palabras más repetidas (al menos 3 veces) de un PDF:
+
+```bash
+python3 -m pysion.builder libro.pdf --min-freq 3 --top 200 -o mitologia.txt
+```
+
+Solo la columna `nombre` de un CSV:
+
+```bash
+python3 -m pysion.builder productos.csv --column nombre -o productos.txt
+```
+
+Una página web y un fichero local combinados en el mismo diccionario:
+
+```bash
+python3 -m pysion.builder "https://es.wikipedia.org/wiki/Mitolog%C3%ADa_n%C3%B3rdica" notas.txt --min-freq 3 -o nordico.txt
+```
+
+Con esa página de Wikipedia salen, por ejemplo: *dioses, odin, aesir, elfos, jotnar, loki, vanir, gigantes, asgard, destino…*
+
+Después, usa el diccionario con pysion como cualquier otro:
+
+```bash
+python3 -m pysion -d nordico.txt --no-themes
+```
+
+O guárdalo como tema, para usarlo con `-t nordico`:
+
+```bash
+python3 -m pysion.builder libro.pdf --top 200 -o pysion/data/themes/nordico.txt
+```
+
+### Opciones del constructor
+
+| Opción | Por defecto | Descripción |
+|---|---|---|
+| `-o`, `--output` | — | Diccionario `.txt` de destino. Se crea si no existe; si existe, se amplía sin duplicar |
+| `--dry-run` | no | Muestra las palabras por pantalla (una por línea) sin escribir nada |
+| `--column` | — | Solo CSV/TSV: columna por nombre o por número (desde 1) |
+| `--no-header` | no | Solo CSV/TSV: la primera fila son datos (por defecto se considera cabecera y se omite) |
+| `--min-length` / `--max-length` | `3` / `14` | Longitud de las palabras (1-30) |
+| `--min-freq` | `1` | Apariciones mínimas en el conjunto de fuentes |
+| `--top` | — | Quedarse solo con las N palabras más frecuentes |
+| `--keep-stopwords` | no | No descartar las palabras vacías |
+| `-v`, `--verbose` | no | Muestra qué fuente se lee y cuántas palabras pasan los filtros |
+
+Formato del fichero resultante, que puedes editar a mano:
+
+```text
+# Diccionario generado por pysion.builder (una palabra por línea)
+# 2026-09-26: 12 palabras desde dioses.csv, libro.pdf
+dioses
+odin
+…
+```
+
+Cada ejecución añade un comentario con la fecha y las fuentes. Para los ficheros solo se guarda el nombre, nunca la ruta completa, para no publicar la estructura de tus carpetas si subes el diccionario a un repositorio.
+
+### Páginas web: normas y límites
+
+- **Respeta `robots.txt`**: si el sitio no permite el acceso a esa ruta, no se descarga. Se identifica como `pysion-builder` con un enlace a este repositorio.
+- **Solo `http` y `https`**: se rechazan `file://`, `ftp://` y otros esquemas.
+- **Límites**: 15 segundos de espera y 10 MB por página.
+- **Solo texto**: HTML o texto plano. Imágenes, PDF remotos u otros tipos se rechazan. Si quieres un PDF de internet, descárgalo y pásalo como fichero.
+- Revisa también las condiciones de uso del sitio antes de extraer su contenido.
+
+---
+
 ## Opciones
 
 | Opción | Por defecto | Descripción |
@@ -366,6 +476,7 @@ Están en `pysion/data/` y son ficheros de texto plano **editables sin tocar có
 pysion/data/
 ├── prefixes.txt        # genéricos: neo, evo, omni, nova, zen…
 ├── suffixes.txt        # genéricos: ia, io, ix, ex, ora, ium…
+├── stopwords.txt       # palabras vacías que descarta pysion.builder
 ├── themes/
 │   ├── latin.txt       # lux, terra, veritas, helios…
 │   ├── naturaleza.txt  # aurora, cedar, luna, brisa…
@@ -388,7 +499,7 @@ Formato de los ficheros:
 - Se ignoran las líneas con espacios y las palabras de menos de 3 o más de 14 letras.
 - Tamaño máximo: 5 MB por fichero.
 
-Puedes usar diccionarios grandes del sistema, por ejemplo `-d /usr/share/dict/spanish`.
+Puedes usar diccionarios grandes del sistema, por ejemplo `-d /usr/share/dict/spanish`, o crear los tuyos con el [constructor de diccionarios](#crear-diccionarios-personalizados).
 
 ---
 
@@ -402,8 +513,15 @@ pysion/
 ├── pysion/
 │   ├── __init__.py      # versión del paquete
 │   ├── __main__.py      # punto de entrada de `python -m pysion`
+│   ├── builder/         # constructor de diccionarios (`python -m pysion.builder`)
+│   │   ├── cli.py       # argumentos y códigos de salida
+│   │   ├── extract.py   # texto → palabras: normaliza, cuenta y filtra
+│   │   ├── files.py     # lectores de TXT, CSV/TSV, HTML y PDF
+│   │   ├── html_text.py # texto visible de un HTML
+│   │   ├── web.py       # descarga con robots.txt, límites y solo http(s)
+│   │   └── writer.py    # fusión sin duplicados y escritura atómica
 │   ├── cli.py           # argumentos, validación y códigos de salida
-│   ├── exceptions.py    # PysionError, LexiconError, ConfigError
+│   ├── exceptions.py    # PysionError, LexiconError, ConfigError, SourceError
 │   ├── generator.py     # bucle que genera, filtra, puntúa y ordena
 │   ├── languages.py     # perfiles de idioma: carga, validación y fusión de reglas
 │   ├── lexicon.py       # carga segura de diccionarios y palabras base
@@ -416,6 +534,7 @@ pysion/
 │   └── data/            # temas, idiomas, prefijos y sufijos
 └── tests/
     ├── test_anchors.py         # palabras base (-w)
+    ├── test_builder.py         # constructor: formatos, filtros, escritura y web
     ├── test_generator.py       # generador, léxico y CLI
     ├── test_languages.py       # idiomas, transliteración y calibración
     ├── test_phonetics.py       # sílabas, normalización, unión suave
@@ -423,6 +542,8 @@ pysion/
 ```
 
 Cada módulo tiene una sola responsabilidad y ninguno pasa de unas 160 líneas.
+
+El constructor de diccionarios es un subpaquete independiente: comparte con el generador la normalización y la carga de diccionarios, pero el generador no depende de él.
 
 ---
 
@@ -437,7 +558,9 @@ Cada módulo tiene una sola responsabilidad y ninguno pasa de unas 160 líneas.
 - **Motivos de rechazo con nombre.** Cada regla devuelve un identificador, así `--stats` muestra exactamente por qué se descartan candidatos y qué conviene ajustar.
 - **Bucle acotado.** Con filtros imposibles, el generador se detiene tras un máximo de intentos (`count × 500`) y devuelve lo que haya conseguido, en vez de colgarse.
 - **Aleatoriedad reproducible.** Se usa `random.Random` y no `secrets`: no hace falta aleatoriedad criptográfica, y así `--seed` permite repetir exactamente un resultado.
-- **Sin dependencias externas.** Todo se resuelve con la biblioteca estándar (`argparse`, `unicodedata`, `re`, `csv`, `json`, `dataclasses`).
+- **Sin dependencias externas.** Todo se resuelve con la biblioteca estándar (`argparse`, `unicodedata`, `re`, `csv`, `json`, `html.parser`, `urllib`, `dataclasses`). La excepción es `pypdf`, porque la biblioteca estándar no puede extraer texto de un PDF de forma fiable. Es opcional y solo se importa al leer un PDF; si falta, el error indica cómo instalarlo.
+- **Constructor = fuente → texto → palabras → diccionario.** Leer un fichero o una web solo cambia el primer paso. Para admitir un formato nuevo basta con registrar su lector en `READERS` ([`pysion/builder/files.py`](pysion/builder/files.py)).
+- **Escritura atómica del diccionario.** El constructor escribe en un fichero temporal y lo renombra al terminar. Un error o un Ctrl+C a mitad nunca deja el `.txt` a medias.
 
 ### Seguridad
 
@@ -445,7 +568,9 @@ Cada módulo tiene una sola responsabilidad y ninguno pasa de unas 160 líneas.
 - `-l` solo acepta códigos de idioma que existan como directorio en `data/languages/`, así que no se puede usar para leer otras rutas (`-l ../../etc` se rechaza).
 - Cada `profile.json` se valida al cargarlo: claves conocidas, listas de letras `a-z` en minúsculas y enteros dentro de rango. Un perfil mal escrito produce un error claro en vez de un comportamiento extraño.
 - Los nombres generados solo contienen letras `a-z`, así que el CSV no puede llevar fórmulas inyectadas (`=`, `+`, `-`, `@`) al abrirlo en una hoja de cálculo.
-- No hay credenciales, llamadas de red ni ejecución de comandos externos.
+- El constructor de diccionarios solo descarga por `http`/`https`, respeta `robots.txt`, limita el tiempo y el tamaño de cada descarga, y solo procesa respuestas de texto.
+- Los comentarios que el constructor escribe en el `.txt` eliminan los caracteres de control. Así, un nombre de fichero con saltos de línea no puede colar "palabras" en el diccionario.
+- No hay credenciales ni ejecución de comandos externos. El generador no hace ninguna llamada de red; solo el constructor, y únicamente cuando le pasas una URL.
 
 ---
 
@@ -545,6 +670,8 @@ STRATEGIES: dict[str, Strategy] = {
 | `3` | Error al cargar un diccionario |
 | `130` | Interrumpido con Ctrl+C |
 
+El constructor de diccionarios usa los mismos criterios: `0` si añadió palabras (o las listó con `--dry-run`), `1` si no había ninguna palabra nueva, `2` para parámetros inválidos, `3` si falla una fuente o la escritura, y `130` con Ctrl+C.
+
 Así puedes usarlo en scripts:
 
 ```bash
@@ -559,7 +686,9 @@ python3 -m pysion -n 100 -f csv > nombres.csv || echo "Revisa los filtros (códi
 python3 -m unittest discover -s tests -v
 ```
 
-Cubren la división en sílabas, la unión suave, cada regla de rechazo, la puntuación, la reproducibilidad con semilla, la carga de diccionarios (temas desconocidos, ficheros inexistentes, acentos), las palabras base (cada nombre deriva de una, validación, uso sin temas), los idiomas (carga y validación de perfiles, rechazo de rutas no permitidas, fusión de reglas, transliteración y calibración con palabras reales) y los códigos de salida.
+Cubren la división en sílabas, la unión suave, cada regla de rechazo, la puntuación, la reproducibilidad con semilla, la carga de diccionarios (temas desconocidos, ficheros inexistentes, acentos), las palabras base (cada nombre deriva de una, validación, uso sin temas), los idiomas (carga y validación de perfiles, rechazo de rutas no permitidas, fusión de reglas, transliteración y calibración con palabras reales), el constructor de diccionarios (cada formato, cabeceras y columnas de CSV, filtros, fusión sin duplicados, escritura atómica y descargas web) y los códigos de salida.
+
+Los tests web no necesitan internet: levantan un servidor HTTP local. El test de PDF se omite si `pypdf` no está instalado.
 
 ---
 
@@ -569,7 +698,9 @@ Cubren la división en sílabas, la unión suave, cada regla de rechazo, la punt
 - **La silabificación es aproximada.** Se basa en la ortografía, no en la fonología real. Funciona bien con los idiomas incluidos, pero no distingue, por ejemplo, los diptongos de los hiatos.
 - **La puntuación de armonía es común a todos los idiomas.** Las reglas sí son específicas de cada idioma, pero la puntuación premia los mismos rasgos (alternancia consonante-vocal, 2-3 sílabas) en todos. Los nombres alemanes y rusos, con más consonantes, tienden a puntuar algo menos.
 - **Las mutaciones estilísticas son universales.** `mutate` aplica los mismos cambios en todos los idiomas (c→k, s→z, v→w…). Si un cambio produce una letra ajena al idioma, la regla `letra_ajena` descarta el nombre, pero no se generan variantes propias de cada idioma.
-- **Diccionarios pequeños.** Cada idioma trae unas 65-85 palabras escogidas. Para más variedad, añade un diccionario grande del idioma con `--dict`.
+- **Diccionarios pequeños.** Cada idioma trae unas 65-85 palabras escogidas. Para más variedad, añade un diccionario grande del idioma con `--dict`, o créalo con el [constructor](#crear-diccionarios-personalizados).
+- **PDF escaneados y webs dinámicas.** El constructor extrae el texto que contiene el fichero o la página: no hace OCR de PDF escaneados (imágenes) ni ejecuta JavaScript, así que las webs que cargan su contenido con JavaScript pueden devolver poco texto.
+- **El constructor no distingue idiomas.** Si una fuente mezcla idiomas, todas sus palabras van al mismo diccionario. Las palabras vacías de los 7 idiomas sí se descartan.
 - **No filtra significados.** Un nombre inventado puede coincidir con una palabra real de otro idioma o tener connotaciones no deseadas. Revisa los finalistas.
 
 ---
