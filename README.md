@@ -9,6 +9,7 @@ También puede:
 - **Inventar palabras a partir de una palabra concreta** (por ejemplo "python" → *Pyxel*, *Pyrus*, *Metathon*). Consulta [Palabras base](#palabras-base).
 - **Inventar palabras que suenen a un idioma**: latín, inglés, español, portugués, italiano, alemán o ruso (transliterado a nuestras letras). Consulta [Idiomas](#idiomas).
 - **Crear tus propios diccionarios** a partir de ficheros (TXT, CSV, PDF, HTML) o de páginas web. Consulta [Crear diccionarios personalizados](#crear-diccionarios-personalizados).
+- **Comprobar disponibilidad** de un nombre como dominio (`.com`, `.com.ar`) y como usuario de redes sociales. Consulta [Comprobar disponibilidad](#comprobar-disponibilidad).
 
 ```text
 $ python3 -m pysion -n 8 --seed 42
@@ -37,6 +38,8 @@ Cada fila muestra el nombre, su puntuación de armonía (0-100), la estrategia u
 - [Palabras base](#palabras-base)
 - [Idiomas](#idiomas)
 - [Crear diccionarios personalizados](#crear-diccionarios-personalizados)
+- [Comprobar disponibilidad](#comprobar-disponibilidad)
+- [Historial: no repetir nombres](#historial-no-repetir-nombres)
 - [Opciones](#opciones)
 - [Estrategias de generación](#estrategias-de-generación)
 - [Reglas de pronunciabilidad](#reglas-de-pronunciabilidad)
@@ -379,6 +382,75 @@ Cada ejecución añade un comentario con la fecha y las fuentes. Para los ficher
 
 ---
 
+## Comprobar disponibilidad
+
+`pysion.check` dice si un nombre está libre como dominio y como usuario en redes sociales:
+
+```bash
+python3 -m pysion.check cisegus visegus
+```
+
+```text
+cisegus  (todo libre)
+  [LIBRE]   dominio .com     cisegus.com
+  [LIBRE]   dominio .com.ar  cisegus.com.ar
+  [LIBRE]   GitHub           cisegus
+  [LIBRE]   X (Twitter)      cisegus
+  [LIBRE]   LinkedIn         cisegus
+  [?]       Instagram        cisegus  — responde igual exista o no; comprobar a mano  https://www.instagram.com/cisegus/
+```
+
+(Ejemplo real; el resultado en vivo puede variar y algún servicio puede dar `[?]` si tarda en responder.)
+
+Qué comprueba y cómo:
+
+- **Dominios `.com` y `.com.ar`**: vía **RDAP**, el sistema oficial de consulta de registros. Es fiable: distingue bien libre de registrado.
+- **Redes sociales** (GitHub, X, LinkedIn, Instagram): consulta la página del perfil y deduce del resultado si el usuario existe. Es **orientativo**: algunas plataformas bloquean las consultas automáticas o responden igual exista o no el usuario. Instagram es el caso típico y se marca siempre como `[?]`.
+
+Cada línea es `[LIBRE]`, `[OCUPADO]` o `[?]` (no concluyente). Un nombre se considera "todo libre" cuando ningún check **fiable** está ocupado; los `[?]` de plataformas poco fiables no cuentan en contra, pero conviene revisarlos a mano con el enlace que se muestra.
+
+### Encadenar con el generador (pipe)
+
+Si no le pasas nombres, `pysion.check` los lee de la entrada estándar, así que puedes comprobar la disponibilidad **a medida que se generan**:
+
+```bash
+python3 -m pysion -w cipher -d cyber.txt --no-themes -n 20 | python3 -m pysion.check --only-free
+```
+
+Entiende la salida del generador en texto, CSV (`-f csv`) o JSON, y toma el nombre de cada línea. Con `--only-free` solo muestra los que están libres, ideal para quedarte únicamente con los candidatos viables.
+
+Opciones: `--only-free` (solo los libres), `-f json` (salida en JSON para procesar). El código de salida es `0` si todos los nombres consultados están libres y `1` si alguno tiene algo ocupado o no concluyente.
+
+> **Aviso.** Es una ayuda, no una verdad legal. Que un dominio figure libre no garantiza que puedas registrar la **marca**: verifica en el registrador y en la oficina de marcas de tu país (en Argentina, el INPI) antes de decidir. La consulta respeta el `robots.txt` de cada sitio y se identifica como `pysion-check`.
+
+---
+
+## Historial: no repetir nombres
+
+Con `--history` das al generador un fichero `.txt` que actúa como memoria: **excluye** los nombres que ya contiene y **añade** los nuevos al final. Así, cada ejecución evita repetir lo ya generado antes.
+
+```bash
+python3 -m pysion -n 10 --history vistos.txt
+```
+
+```bash
+# Otra ejecución: no repetirá ninguno de los anteriores y ampliará la lista
+python3 -m pysion -n 10 --history vistos.txt
+```
+
+- Si el fichero no existe, se crea. Si existe, se lee y se amplía.
+- Los nombres se guardan en minúsculas, uno por línea; puedes editarlo a mano o reutilizarlo como diccionario (`-d`) o blacklist.
+- En `--stats`, los descartes por historial aparecen como `en_historial`.
+- Es el mismo formato que produce [el constructor](#crear-diccionarios-personalizados), así que puedes partir de una lista de nombres que ya descartaste.
+
+Combinado con el comprobador, tienes un flujo completo: generar sin repetir, ver solo los libres y acumular el historial.
+
+```bash
+python3 -m pysion -w cipher -d cyber.txt --no-themes -n 30 --history vistos.txt | python3 -m pysion.check --only-free
+```
+
+---
+
 ## Opciones
 
 | Opción | Por defecto | Descripción |
@@ -395,6 +467,7 @@ Cada ejecución añade un comentario con la fecha y las fuentes. Para los ficher
 | `--min-score` | `70` | Puntuación mínima de armonía (0-100) |
 | `--starts-with` | — | Obliga a que el nombre empiece por esa/s letra/s |
 | `--seed` | aleatoria | Semilla para obtener siempre los mismos resultados |
+| `--history FICHERO` | — | [Historial](#historial-no-repetir-nombres): excluye los nombres que ya contiene y añade los nuevos |
 | `-f`, `--format` | `text` | Formato de salida: `text`, `json` o `csv` |
 | `--stats` | no | Muestra en stderr los intentos y los motivos de rechazo |
 | `-v`, `--verbose` | no | Logs de depuración en stderr |
@@ -447,7 +520,7 @@ Los valores de la tabla son los genéricos (mezcla de español e inglés). Cada 
 | Termina en consonante "cortada" (`q`, `j`, `v`, `b`, `g`, `p`…) | `final_debil` |
 | Contiene una letra ajena al idioma elegido (`k` en italiano, `w` en ruso…) | `letra_ajena` |
 
-El generador también descarta candidatos por `duplicado`, `palabra_real` (existe en el diccionario), `prefijo_usuario` (no cumple `--starts-with`) y `score_bajo` (por debajo de `--min-score`).
+El generador también descarta candidatos por `duplicado`, `palabra_real` (existe en el diccionario), `prefijo_usuario` (no cumple `--starts-with`), `score_bajo` (por debajo de `--min-score`) y `en_historial` (ya está en el fichero de `--history`).
 
 ---
 
@@ -520,6 +593,10 @@ pysion/
 │   │   ├── html_text.py # texto visible de un HTML
 │   │   ├── web.py       # descarga con robots.txt, límites y solo http(s)
 │   │   └── writer.py    # fusión sin duplicados y escritura atómica
+│   ├── check/           # comprobador de disponibilidad (`python -m pysion.check`)
+│   │   ├── cli.py       # argumentos, pipe desde stdin y salida
+│   │   ├── checks.py    # dominios (RDAP) y redes sociales
+│   │   └── http_client.py  # cliente HTTP que nunca lanza
 │   ├── cli.py           # argumentos, validación y códigos de salida
 │   ├── exceptions.py    # PysionError, LexiconError, ConfigError, SourceError
 │   ├── generator.py     # bucle que genera, filtra, puntúa y ordena
@@ -535,6 +612,7 @@ pysion/
 └── tests/
     ├── test_anchors.py         # palabras base (-w)
     ├── test_builder.py         # constructor: formatos, filtros, escritura y web
+    ├── test_check.py           # comprobador: dominios, redes, pipe y filtros
     ├── test_generator.py       # generador, léxico y CLI
     ├── test_languages.py       # idiomas, transliteración y calibración
     ├── test_phonetics.py       # sílabas, normalización, unión suave
@@ -561,6 +639,9 @@ El constructor de diccionarios es un subpaquete independiente: comparte con el g
 - **Sin dependencias externas.** Todo se resuelve con la biblioteca estándar (`argparse`, `unicodedata`, `re`, `csv`, `json`, `html.parser`, `urllib`, `dataclasses`). La excepción es `pypdf`, porque la biblioteca estándar no puede extraer texto de un PDF de forma fiable. Es opcional y solo se importa al leer un PDF; si falta, el error indica cómo instalarlo.
 - **Constructor = fuente → texto → palabras → diccionario.** Leer un fichero o una web solo cambia el primer paso. Para admitir un formato nuevo basta con registrar su lector en `READERS` ([`pysion/builder/files.py`](pysion/builder/files.py)).
 - **Escritura atómica del diccionario.** El constructor escribe en un fichero temporal y lo renombra al terminar. Un error o un Ctrl+C a mitad nunca deja el `.txt` a medias.
+- **Historial = excluir + añadir en un solo fichero.** `--history` usa el mismo `.txt` como lista negra de entrada y como destino de salida. Un único flag evita repetir entre ejecuciones sin tener que gestionar dos ficheros.
+- **Disponibilidad orientativa y honesta.** El comprobador usa RDAP (fiable) para dominios y el código HTTP del perfil para redes. Cuando una plataforma no permite saberlo con certeza, lo marca como no concluyente en vez de arriesgar un falso "libre".
+- **Comprobaciones en paralelo.** Cada nombre lanza sus consultas a la vez (hilos), porque el tiempo lo domina la latencia de red, no el cálculo.
 
 ### Seguridad
 
@@ -568,7 +649,7 @@ El constructor de diccionarios es un subpaquete independiente: comparte con el g
 - `-l` solo acepta códigos de idioma que existan como directorio en `data/languages/`, así que no se puede usar para leer otras rutas (`-l ../../etc` se rechaza).
 - Cada `profile.json` se valida al cargarlo: claves conocidas, listas de letras `a-z` en minúsculas y enteros dentro de rango. Un perfil mal escrito produce un error claro en vez de un comportamiento extraño.
 - Los nombres generados solo contienen letras `a-z`, así que el CSV no puede llevar fórmulas inyectadas (`=`, `+`, `-`, `@`) al abrirlo en una hoja de cálculo.
-- El constructor de diccionarios solo descarga por `http`/`https`, respeta `robots.txt`, limita el tiempo y el tamaño de cada descarga, y solo procesa respuestas de texto.
+- El constructor de diccionarios y el comprobador de disponibilidad solo usan `http`/`https`, respetan `robots.txt`, limitan el tiempo y el tamaño de cada descarga, y se identifican con su propio agente. El generador nunca accede a la red.
 - Los comentarios que el constructor escribe en el `.txt` eliminan los caracteres de control. Así, un nombre de fichero con saltos de línea no puede colar "palabras" en el diccionario.
 - No hay credenciales ni ejecución de comandos externos. El generador no hace ninguna llamada de red; solo el constructor, y únicamente cuando le pasas una URL.
 
@@ -688,7 +769,7 @@ python3 -m unittest discover -s tests -v
 
 Cubren la división en sílabas, la unión suave, cada regla de rechazo, la puntuación, la reproducibilidad con semilla, la carga de diccionarios (temas desconocidos, ficheros inexistentes, acentos), las palabras base (cada nombre deriva de una, validación, uso sin temas), los idiomas (carga y validación de perfiles, rechazo de rutas no permitidas, fusión de reglas, transliteración y calibración con palabras reales), el constructor de diccionarios (cada formato, cabeceras y columnas de CSV, filtros, fusión sin duplicados, escritura atómica y descargas web) y los códigos de salida.
 
-Los tests web no necesitan internet: levantan un servidor HTTP local. El test de PDF se omite si `pypdf` no está instalado.
+Los tests web no necesitan internet: levantan un servidor HTTP local. El test de PDF se omite si `pypdf` no está instalado. Los del comprobador de disponibilidad tampoco tocan la red: simulan las respuestas HTTP.
 
 ---
 

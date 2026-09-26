@@ -21,6 +21,8 @@ class GeneratorConfig:
     strategies: tuple[str, ...] = tuple(STRATEGIES)
     rules: PhoneticRules = field(default_factory=PhoneticRules)
     starts_with: str = ""
+    # Nombres (normalizados) ya vistos en ejecuciones previas: no se repiten.
+    exclude: frozenset[str] = frozenset()
     attempts_per_name: int = 500  # tope de intentos = count * este valor
 
     def validate(self) -> None:
@@ -71,6 +73,8 @@ def _rejection_reason(
     if candidate is None:
         return "estrategia_sin_resultado"
     name = candidate.name
+    if name in config.exclude:
+        return "en_historial"
     if name in seen:
         return "duplicado"
     if name in lexicon_words:

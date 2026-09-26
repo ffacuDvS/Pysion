@@ -18,7 +18,7 @@ from pysion import __version__
 from pysion.exceptions import ConfigError, LexiconError
 from pysion.generator import GeneratorConfig, generate
 from pysion.languages import LanguageProfile, available_languages, load_languages, merge_rules
-from pysion.lexicon import available_themes, build_lexicon, normalize_anchors
+from pysion.lexicon import available_themes, build_lexicon, load_wordfile, normalize_anchors
 from pysion.output import RENDERERS, render_stats
 from pysion.phonetics import normalize
 from pysion.rules import PhoneticRules
@@ -83,6 +83,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--starts-with", default="", help="forzar letra/s inicial/es")
     parser.add_argument("--seed", type=int, default=None,
                         help="semilla para resultados reproducibles")
+    parser.add_argument("--history", type=Path, metavar="FICHERO",
+                        help="fichero de historial: excluye los nombres que ya contiene "
+                             "y añade los nuevos al final (evita repetir entre ejecuciones)")
     parser.add_argument("-f", "--format", choices=RENDERERS, default="text")
     parser.add_argument("--stats", action="store_true",
                         help="mostrar estadísticas de rechazo en stderr")
@@ -105,7 +108,27 @@ def _config_from_args(args: argparse.Namespace,
             languages,
         ),
         starts_with=starts_with,
+        exclude=_load_history(args.history),
     )
+
+
+def _load_history(path: Path | None) -> frozenset[str]:
+    """Nombres ya generados en ejecuciones previas (normalizados)."""
+    if path is None or not path.exists():
+        return frozenset()
+    # Sin límite de longitud: solo interesa reconocer lo ya visto.
+    return frozenset(load_wordfile(path, min_len=1, max_len=10_000))
+
+
+def _append_history(path: Path | None, result) -> None:
+    """Añade los nombres nuevos al historial (uno por línea, en minúsculas)."""
+    if path is None or not result.names:
+        return
+    try:
+        with path.open("a", encoding="utf-8") as handle:
+            handle.write("".join(f"{n.name}\n" for n in result.names))
+    except OSError as exc:
+        raise LexiconError(f"No se pudo escribir el historial {path}: {exc}") from exc
 
 
 def _selected_themes(args: argparse.Namespace) -> list[str] | None:
@@ -132,6 +155,7 @@ def run(args: argparse.Namespace) -> int:
     RENDERERS[args.format](result, sys.stdout)
     if args.stats:
         render_stats(result, sys.stderr)
+    _append_history(args.history, result)
     return EXIT_OK if len(result.names) == config.count else EXIT_PARTIAL
 
 
