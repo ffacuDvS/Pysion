@@ -1,0 +1,27 @@
+# Tecnología y ciencia
+pixel
+vector
+quantum
+matrix
+cipher
+signal
+circuit
+kernel
+binary
+fusion
+photon
+neuron
+cloud
+data
+logic
+module
+nexo
+codigo
+sistema
+motor
+radar
+sonar
+laser
+orbital
+digital
+atomic

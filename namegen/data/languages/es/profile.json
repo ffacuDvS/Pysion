@@ -1,0 +1,10 @@
+{
+  "name": "Español",
+  "onset_clusters": ["bl", "br", "cl", "cr", "dr", "fl", "fr", "gl", "gr", "pl", "pr", "tr", "ch", "ll"],
+  "allowed_doubles": ["ll", "rr", "cc", "ee", "oo", "nn"],
+  "allowed_final_clusters": ["ns", "rs"],
+  "weak_final_consonants": ["b", "c", "f", "g", "h", "j", "k", "m", "p", "q", "t", "v", "w"],
+  "forbidden_letters": ["w"],
+  "max_vowel_run": 2,
+  "max_consonant_run": 3
+}

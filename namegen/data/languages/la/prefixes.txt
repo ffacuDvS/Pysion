@@ -1,0 +1,17 @@
+# Prefijos latinos
+ad
+con
+inter
+per
+pro
+super
+trans
+ultra
+omni
+magni
+bene
+luci
+aqua
+terra
+vita
+sol

@@ -1,0 +1,11 @@
+{
+  "name": "Ruso (transliterado)",
+  "onset_clusters": ["bl", "br", "dr", "fl", "fr", "gl", "gr", "kl", "kr", "pl", "pr", "tr", "ch", "sh", "zh", "kh", "ts", "shch", "sv", "sl", "sm", "sn", "sp", "st", "sk", "zv", "zn", "zl", "zd", "vl", "vr", "dv", "tv", "gn", "mn", "khr", "str", "skr", "zdr"],
+  "allowed_doubles": ["ss", "nn", "ll", "mm", "rr", "tt"],
+  "allowed_final_clusters": ["st", "sk", "nk", "rk", "nt", "rt", "rd", "ld", "lk", "rn", "rm", "zd", "kh", "sh", "zh", "ch", "ts", "shch", "sht", "vsk"],
+  "weak_final_consonants": ["c", "f", "h", "j", "q", "w", "x"],
+  "forbidden_letters": ["q", "w", "x"],
+  "max_vowel_run": 3,
+  "max_consonant_run": 4,
+  "forbidden_bigrams": ["bp", "bx", "cx", "dt", "dx", "fq", "fv", "gk", "gq", "hj", "hx", "jh", "jq", "jv", "jx", "kg", "kq", "pb", "qj", "td", "uw", "vf", "vj", "vq", "vw", "vx", "wq", "wu", "wv", "xj", "xz", "yy", "zs", "zx"]
+}

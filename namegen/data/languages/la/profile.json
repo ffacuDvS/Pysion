@@ -1,0 +1,11 @@
+{
+  "name": "Latín",
+  "onset_clusters": ["bl", "br", "cl", "cr", "dr", "fl", "fr", "gl", "gr", "pl", "pr", "tr",
+                     "sc", "sp", "st", "scr", "spr", "str", "ph", "th", "ch"],
+  "allowed_doubles": ["ll", "ss", "rr", "mm", "nn", "tt", "pp", "cc", "ff"],
+  "allowed_final_clusters": ["ns", "nt", "rs", "ps", "bs", "ms", "nx", "rx", "lx", "st"],
+  "weak_final_consonants": ["b", "c", "d", "f", "g", "h", "j", "k", "p", "q", "v", "w", "z"],
+  "forbidden_letters": ["j", "k", "w"],
+  "max_vowel_run": 2,
+  "max_consonant_run": 3
+}

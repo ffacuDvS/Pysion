@@ -1,0 +1,14 @@
+{
+  "name": "Italiano",
+  "onset_clusters": ["bl", "br", "cl", "cr", "dr", "fl", "fr", "gl", "gr", "pl", "pr", "tr",
+                     "ch", "gh", "gn", "sc", "sp", "st", "sf", "sb", "sd", "sg", "sm", "sn",
+                     "sl", "sv", "scr", "spr", "str", "sgr", "sch"],
+  "allowed_doubles": ["ll", "ss", "rr", "mm", "nn", "tt", "pp", "cc", "ff", "zz", "gg",
+                      "bb", "dd", "vv"],
+  "allowed_final_clusters": [],
+  "weak_final_consonants": ["b", "c", "d", "f", "g", "h", "j", "k", "m", "p", "q", "s", "t",
+                            "v", "w", "x", "z"],
+  "forbidden_letters": ["j", "k", "w", "x", "y"],
+  "max_vowel_run": 2,
+  "max_consonant_run": 3
+}

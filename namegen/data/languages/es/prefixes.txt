@@ -1,0 +1,12 @@
+# Prefijos españoles
+sol
+mar
+luz
+alto
+buen
+nuevo
+gran
+vida
+tierra
+oro
+cielo

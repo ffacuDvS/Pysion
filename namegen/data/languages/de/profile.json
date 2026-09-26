@@ -1,0 +1,10 @@
+{
+  "name": "Alemán",
+  "onset_clusters": ["bl", "br", "dr", "fl", "fr", "gl", "gr", "kl", "kr", "pl", "pr", "tr", "ch", "kn", "pf", "pfl", "pfr", "sch", "schl", "schm", "schn", "schr", "schw", "sp", "spr", "st", "str", "zw", "th"],
+  "allowed_doubles": ["ss", "ll", "mm", "nn", "ff", "tt", "rr", "pp", "ee", "aa", "oo", "bb"],
+  "allowed_final_clusters": ["ng", "nk", "nd", "nt", "ld", "lt", "lk", "lf", "lz", "rg", "rk", "rt", "rn", "rm", "rs", "rz", "rf", "ch", "sch", "cht", "ft", "st", "tz", "ck", "pf", "ss", "ll", "mm", "nn", "ff", "tt", "nz", "ns", "ms", "ts", "ht", "hl", "hn", "hr", "hm", "ngs", "chs", "rd", "nft"],
+  "weak_final_consonants": ["c", "j", "q", "v", "w", "y"],
+  "max_vowel_run": 3,
+  "max_consonant_run": 4,
+  "forbidden_bigrams": ["bp", "bx", "cx", "dt", "dx", "fq", "fv", "gk", "gq", "hj", "hx", "iy", "jh", "jq", "jv", "jx", "kg", "kq", "pb", "qj", "td", "vf", "vj", "vq", "vw", "vx", "wq", "wv", "xj", "xz", "yi", "yy", "zs", "zx"]
+}

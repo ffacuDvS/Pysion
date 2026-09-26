@@ -1,0 +1,15 @@
+# Prefijos ingleses
+up
+over
+true
+clear
+swift
+star
+sun
+blue
+open
+smart
+high
+iron
+bright
+free

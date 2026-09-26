@@ -1,0 +1,11 @@
+# Prefijos portugueses
+bem
+mar
+sol
+luz
+nova
+vida
+terra
+rio
+alto
+ouro

@@ -1,0 +1,13 @@
+# Prefijos alemanes
+hoch
+sonn
+stern
+gold
+licht
+wald
+berg
+stark
+frei
+ur
+wunder
+kraft

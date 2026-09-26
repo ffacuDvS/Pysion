@@ -1,0 +1,17 @@
+{
+  "name": "Inglés",
+  "onset_clusters": ["bl", "br", "cl", "cr", "dr", "fl", "fr", "gl", "gr", "pl", "pr", "tr",
+                     "ch", "sh", "th", "ph", "wh", "wr", "kn", "sk", "sl", "sm", "sn", "sp",
+                     "st", "sw", "tw", "dw", "qu", "scr", "spl", "spr", "str", "thr", "shr",
+                     "squ"],
+  "allowed_doubles": ["ll", "ss", "ff", "tt", "ee", "oo", "mm", "nn", "pp", "rr", "dd",
+                      "bb", "gg", "zz", "cc"],
+  "allowed_final_clusters": ["ng", "nk", "nd", "nt", "st", "sk", "sp", "ft", "ld", "lt", "lf",
+                             "lk", "lm", "lp", "rt", "rd", "rk", "rm", "rn", "rs", "rl", "rp",
+                             "rf", "rb", "ck", "sh", "th", "ch", "tch", "ght", "ns", "ts",
+                             "ks", "ps", "ms", "ds", "xt", "mp", "pt", "ct", "ss", "ll", "ff",
+                             "nch", "rch", "rth", "nth", "wn", "wl", "wk"],
+  "weak_final_consonants": ["c", "j", "q", "v"],
+  "max_vowel_run": 2,
+  "max_consonant_run": 4
+}

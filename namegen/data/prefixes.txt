@@ -1,0 +1,16 @@
+# Prefijos cortos con sonoridad de marca (uno por línea, '#' = comentario)
+neo
+evo
+omni
+nova
+astra
+lumi
+vita
+axi
+zen
+kai
+alto
+ultra
+meta
+syn
+vero

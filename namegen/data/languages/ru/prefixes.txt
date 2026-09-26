@@ -1,0 +1,11 @@
+# Prefijos rusos transliterados
+zlato
+svet
+novo
+belo
+krasno
+dobro
+mir
+slav
+yar
+vse

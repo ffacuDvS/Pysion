@@ -1,0 +1,10 @@
+{
+  "name": "Portugués",
+  "onset_clusters": ["bl", "br", "cl", "cr", "dr", "fl", "fr", "gl", "gr", "pl", "pr", "tr", "ch", "nh", "lh"],
+  "allowed_doubles": ["rr", "ss", "ee", "oo"],
+  "allowed_final_clusters": ["ns", "rs", "ls"],
+  "weak_final_consonants": ["b", "c", "d", "f", "g", "h", "j", "k", "p", "q", "t", "v", "w"],
+  "forbidden_letters": ["k", "w", "y"],
+  "max_vowel_run": 3,
+  "max_consonant_run": 3
+}

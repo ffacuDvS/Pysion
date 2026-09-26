@@ -1,0 +1,17 @@
+# Sufijos alemanes
+heim
+berg
+burg
+hof
+stein
+wald
+werk
+mann
+haus
+feld
+dorf
+lich
+ung
+ling
+tal
+bach
