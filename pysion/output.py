@@ -12,7 +12,9 @@ def _sources(item: ScoredName) -> str:
 
 
 def render_text(result: GenerationResult, stream: TextIO) -> None:
-    width = max((len(n.name) for n in result.names), default=6)
+    # Se mide por `display` (no por `name`): con --type puede incluir un
+    # calificador ("Cipher Security") y la columna de puntuación se desalinearía.
+    width = max((len(n.display) for n in result.names), default=6)
     for i, item in enumerate(result.names, start=1):
         stream.write(
             f"{i:>3}. {item.display:<{width}}  {item.score:5.1f}  "
