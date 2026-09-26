@@ -14,19 +14,19 @@ import random
 import sys
 from pathlib import Path
 
-from namegen import __version__
-from namegen.exceptions import ConfigError, LexiconError
-from namegen.generator import GeneratorConfig, generate
-from namegen.languages import LanguageProfile, available_languages, load_languages, merge_rules
-from namegen.lexicon import available_themes, build_lexicon, normalize_anchors
-from namegen.output import RENDERERS, render_stats
-from namegen.phonetics import normalize
-from namegen.rules import PhoneticRules
-from namegen.strategies import STRATEGIES
+from pysion import __version__
+from pysion.exceptions import ConfigError, LexiconError
+from pysion.generator import GeneratorConfig, generate
+from pysion.languages import LanguageProfile, available_languages, load_languages, merge_rules
+from pysion.lexicon import available_themes, build_lexicon, normalize_anchors
+from pysion.output import RENDERERS, render_stats
+from pysion.phonetics import normalize
+from pysion.rules import PhoneticRules
+from pysion.strategies import STRATEGIES
 
 EXIT_OK, EXIT_PARTIAL, EXIT_USAGE, EXIT_LEXICON, EXIT_INTERRUPTED = 0, 1, 2, 3, 130
 
-logger = logging.getLogger("namegen")
+logger = logging.getLogger("pysion")
 
 
 def _bounded_int(low: int, high: int):
@@ -56,7 +56,7 @@ def _csv_list(value: str) -> list[str]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="namegen",
+        prog="pysion",
         description="Genera nombres inventados y armónicos para marcas/empresas.",
     )
     parser.add_argument("-n", "--count", type=_bounded_int(1, 1000), default=20,

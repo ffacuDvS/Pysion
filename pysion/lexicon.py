@@ -5,11 +5,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Iterable
 
-from namegen.exceptions import LexiconError
-from namegen.phonetics import normalize
+from pysion.exceptions import LexiconError
+from pysion.phonetics import normalize
 
 if TYPE_CHECKING:  # solo para anotaciones: evita importación circular
-    from namegen.languages import LanguageProfile
+    from pysion.languages import LanguageProfile
 
 logger = logging.getLogger(__name__)
 

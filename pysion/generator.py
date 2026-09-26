@@ -5,11 +5,11 @@ import random
 from collections import Counter
 from dataclasses import dataclass, field
 
-from namegen.exceptions import ConfigError
-from namegen.lexicon import Lexicon
-from namegen.rules import PhoneticRules, check
-from namegen.scoring import harmony_score
-from namegen.strategies import STRATEGIES, Candidate
+from pysion.exceptions import ConfigError
+from pysion.lexicon import Lexicon
+from pysion.rules import PhoneticRules, check
+from pysion.scoring import harmony_score
+from pysion.strategies import STRATEGIES, Candidate
 
 logger = logging.getLogger(__name__)
 

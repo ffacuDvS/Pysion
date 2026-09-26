@@ -1,6 +1,6 @@
 import unittest
 
-from namegen.phonetics import cv_pattern, join_smooth, normalize, syllabify
+from pysion.phonetics import cv_pattern, join_smooth, normalize, syllabify
 
 
 class TestPhonetics(unittest.TestCase):

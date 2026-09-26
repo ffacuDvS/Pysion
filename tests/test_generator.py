@@ -5,11 +5,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from namegen.cli import EXIT_LEXICON, EXIT_OK, EXIT_USAGE, main
-from namegen.exceptions import ConfigError, LexiconError
-from namegen.generator import GeneratorConfig, generate
-from namegen.lexicon import build_lexicon
-from namegen.rules import check
+from pysion.cli import EXIT_LEXICON, EXIT_OK, EXIT_USAGE, main
+from pysion.exceptions import ConfigError, LexiconError
+from pysion.generator import GeneratorConfig, generate
+from pysion.lexicon import build_lexicon
+from pysion.rules import check
 
 
 class TestGenerator(unittest.TestCase):

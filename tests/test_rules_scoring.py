@@ -1,7 +1,7 @@
 import unittest
 
-from namegen.rules import PhoneticRules, check
-from namegen.scoring import harmony_score
+from pysion.rules import PhoneticRules, check
+from pysion.scoring import harmony_score
 
 RULES = PhoneticRules()
 

@@ -3,11 +3,11 @@ import random
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 
-from namegen.cli import EXIT_OK, EXIT_USAGE, main
-from namegen.exceptions import LexiconError
-from namegen.generator import GeneratorConfig, generate
-from namegen.lexicon import build_lexicon, normalize_anchors
-from namegen.strategies import STRATEGIES
+from pysion.cli import EXIT_OK, EXIT_USAGE, main
+from pysion.exceptions import LexiconError
+from pysion.generator import GeneratorConfig, generate
+from pysion.lexicon import build_lexicon, normalize_anchors
+from pysion.strategies import STRATEGIES
 
 
 class TestAnchorLexicon(unittest.TestCase):

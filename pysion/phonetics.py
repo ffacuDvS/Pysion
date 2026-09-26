@@ -7,7 +7,7 @@ cortar y unir palabras por fronteras "naturales" en español/inglés.
 import re
 import unicodedata
 
-from namegen.transliteration import transliterate
+from pysion.transliteration import transliterate
 
 VOWELS = frozenset("aeiouy")
 

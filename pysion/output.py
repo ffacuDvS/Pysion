@@ -4,7 +4,7 @@ import csv
 import json
 from typing import Callable, TextIO
 
-from namegen.generator import GenerationResult, ScoredName
+from pysion.generator import GenerationResult, ScoredName
 
 
 def _sources(item: ScoredName) -> str:

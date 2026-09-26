@@ -1,13 +1,13 @@
 """Jerarquía de excepciones propias del generador."""
 
 
-class NameGenError(Exception):
-    """Error base de namegen."""
+class PysionError(Exception):
+    """Error base de pysion."""
 
 
-class LexiconError(NameGenError):
+class LexiconError(PysionError):
     """Error al cargar o validar diccionarios."""
 
 
-class ConfigError(NameGenError):
+class ConfigError(PysionError):
     """Configuración inválida (parámetros incoherentes)."""

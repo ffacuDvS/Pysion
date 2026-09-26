@@ -5,7 +5,7 @@ que además suena bien como marca. Cada componente devuelve un valor 0..1 y
 se combinan con pesos ajustables en WEIGHTS.
 """
 
-from namegen.phonetics import VOWELS, cv_pattern, syllabify
+from pysion.phonetics import VOWELS, cv_pattern, syllabify
 
 WEIGHTS = {
     "length": 0.20,

@@ -1,6 +1,6 @@
-# namegen
+# Pysion
 
-Generador de **nombres inventados con armonía fonética**, pensado para ayudar a elegir el nombre de una empresa o marca.
+**Pysion** es un generador de **nombres inventados con armonía fonética**, pensado para ayudar a elegir el nombre de una empresa o marca.
 
 Toma palabras al azar de diccionarios temáticos, las combina por **sílabas** y descarta todo lo que no se pueda pronunciar. Después ordena los resultados según lo bien que "suenan". Las palabras resultantes no existen, pero conservan una estructura natural en español e inglés.
 
@@ -10,7 +10,7 @@ También puede:
 - **Inventar palabras que suenen a un idioma**: latín, inglés, español, portugués, italiano, alemán o ruso (transliterado a nuestras letras). Consulta [Idiomas](#idiomas).
 
 ```text
-$ python3 -m namegen -n 8 --seed 42
+$ python3 -m pysion -n 8 --seed 42
   1. Cimos    96.7  [syllable_mix: cipher + kosmos]
   2. Telor    96.7  [blend: terra + valor]
   3. Vatus    96.7  [syllable_mix: valor + ventus]
@@ -46,6 +46,7 @@ Cada fila muestra el nombre, su puntuación de armonía (0-100), la estrategia u
 - [Códigos de salida](#códigos-de-salida)
 - [Tests](#tests)
 - [Limitaciones](#limitaciones)
+- [Licencia](#licencia)
 
 ---
 
@@ -63,12 +64,12 @@ Cada nombre pasa por cuatro pasos:
 ## Instalación
 
 ```bash
-git clone <url-de-tu-repositorio> name-generator
-cd name-generator
+git clone https://github.com/ffacuDvS/Pysion pysion
+cd pysion
 python3 --version   # debe ser 3.10 o superior
 ```
 
-No hace falta `pip install` ni dar permisos de ejecución: el paquete se ejecuta con `python3 -m namegen` desde la raíz del proyecto.
+No hace falta `pip install` ni dar permisos de ejecución: el paquete se ejecuta con `python3 -m pysion` desde la raíz del proyecto.
 
 ---
 
@@ -77,55 +78,55 @@ No hace falta `pip install` ni dar permisos de ejecución: el paquete se ejecuta
 Uso básico (20 nombres con todos los temas):
 
 ```bash
-python3 -m namegen
+python3 -m pysion
 ```
 
 Solo con los temas latín y valores, empezando por "v":
 
 ```bash
-python3 -m namegen -n 30 -t latin,valores --starts-with v
+python3 -m pysion -n 30 -t latin,valores --starts-with v
 ```
 
 Con tu propio diccionario, sin usar los temas incluidos:
 
 ```bash
-python3 -m namegen -d ~/mis_palabras.txt --no-themes -n 40
+python3 -m pysion -d ~/mis_palabras.txt --no-themes -n 40
 ```
 
 A partir de una palabra concreta:
 
 ```bash
-python3 -m namegen -w python
+python3 -m pysion -w python
 ```
 
 Que suene a italiano:
 
 ```bash
-python3 -m namegen -l it
+python3 -m pysion -l it
 ```
 
 Nombres cortos y de alta puntuación, exportados a CSV:
 
 ```bash
-python3 -m namegen -n 50 --max-length 6 --min-score 90 -f csv > nombres.csv
+python3 -m pysion -n 50 --max-length 6 --min-score 90 -f csv > nombres.csv
 ```
 
 Salida en JSON (para procesarla con otras herramientas):
 
 ```bash
-python3 -m namegen -n 10 -f json
+python3 -m pysion -n 10 -f json
 ```
 
 Resultado reproducible, con estadísticas de rechazo (útil para ajustar las reglas):
 
 ```bash
-python3 -m namegen --seed 42 --stats
+python3 -m pysion --seed 42 --stats
 ```
 
 Solo algunas estrategias:
 
 ```bash
-python3 -m namegen -s blend,root_suffix
+python3 -m pysion -s blend,root_suffix
 ```
 
 ---
@@ -135,7 +136,7 @@ python3 -m namegen -s blend,root_suffix
 Con `-w/--word` indicas una palabra de la que **deben derivar todos los nombres**. Se puede repetir para usar varias:
 
 ```bash
-python3 -m namegen -w python -n 12 --seed 1
+python3 -m pysion -w python -n 12 --seed 1
 ```
 
 ```text
@@ -168,13 +169,13 @@ Combinaciones útiles:
 Dos palabras base mezcladas con el tema tecnología:
 
 ```bash
-python3 -m namegen -w python -w generator -t tecnologia
+python3 -m pysion -w python -w generator -t tecnologia
 ```
 
 Solo la palabra base, sin temas:
 
 ```bash
-python3 -m namegen -w python --no-themes
+python3 -m pysion -w python --no-themes
 ```
 
 Con una sola palabra y `--no-themes` no hay compañeras con las que mezclar, así que `blend` y `syllable_mix` no producen nada (aparecen en `--stats` como `estrategia_sin_resultado`). Los nombres salen de `mutate`, `root_suffix` y `prefix_root` (*Metathon*, *Pythan*, *Pyra*). Si quieres más variedad, añade otra palabra base o un tema.
@@ -200,7 +201,7 @@ Con `-l/--lang` eliges uno o varios idiomas. Cada idioma aporta tres cosas:
 | `ru` | Ruso (transliterado) | `zh`, `kh`, `ts`, `shch`; finales como `-ov`, `-sk`; sin `q`, `w`, `x` | *Stepeva, Kavo, Ralet, Taysteplet* |
 
 ```bash
-python3 -m namegen -l it -n 6 --seed 3
+python3 -m pysion -l it -n 6 --seed 3
 ```
 
 ```text
@@ -224,19 +225,19 @@ Algunas combinaciones:
 Latín e italiano juntos:
 
 ```bash
-python3 -m namegen -l la,it
+python3 -m pysion -l la,it
 ```
 
 Alemán mezclado con el tema de tecnología:
 
 ```bash
-python3 -m namegen -l de -t tecnologia
+python3 -m pysion -l de -t tecnologia
 ```
 
 Ruso a partir de una palabra escrita en cirílico:
 
 ```bash
-python3 -m namegen -l ru -w Волга
+python3 -m pysion -l ru -w Волга
 ```
 
 ```text
@@ -316,7 +317,7 @@ Todas las estrategias unen fragmentos con `join_smooth()`, que corrige la juntur
 
 ## Reglas de pronunciabilidad
 
-Definidas en [`namegen/rules.py`](namegen/rules.py). Si un nombre incumple cualquiera de ellas, se descarta. Cada regla tiene un identificador que aparece en `--stats`.
+Definidas en [`pysion/rules.py`](pysion/rules.py). Si un nombre incumple cualquiera de ellas, se descarta. Cada regla tiene un identificador que aparece en `--stats`.
 
 Los valores de la tabla son los genéricos (mezcla de español e inglés). Cada [idioma](#idiomas) los sustituye por los suyos en su `profile.json`.
 
@@ -342,7 +343,7 @@ El generador también descarta candidatos por `duplicado`, `palabra_real` (exist
 
 ## Puntuación de armonía
 
-Las reglas deciden **qué es válido**; la puntuación decide **qué suena mejor**. Está en [`namegen/scoring.py`](namegen/scoring.py) y suma seis componentes ponderados:
+Las reglas deciden **qué es válido**; la puntuación decide **qué suena mejor**. Está en [`pysion/scoring.py`](pysion/scoring.py) y suma seis componentes ponderados:
 
 | Componente | Peso | Ideal |
 |---|---|---|
@@ -359,10 +360,10 @@ Los pesos están en el diccionario `WEIGHTS` y se pueden ajustar a tu gusto.
 
 ## Diccionarios
 
-Están en `namegen/data/` y son ficheros de texto plano **editables sin tocar código**:
+Están en `pysion/data/` y son ficheros de texto plano **editables sin tocar código**:
 
 ```text
-namegen/data/
+pysion/data/
 ├── prefixes.txt        # genéricos: neo, evo, omni, nova, zen…
 ├── suffixes.txt        # genéricos: ia, io, ix, ex, ora, ium…
 ├── themes/
@@ -394,13 +395,15 @@ Puedes usar diccionarios grandes del sistema, por ejemplo `-d /usr/share/dict/sp
 ## Estructura del proyecto
 
 ```text
-name-generator/
+pysion/
+├── .gitignore
+├── LICENSE
 ├── README.md
-├── namegen/
+├── pysion/
 │   ├── __init__.py      # versión del paquete
-│   ├── __main__.py      # punto de entrada de `python -m namegen`
+│   ├── __main__.py      # punto de entrada de `python -m pysion`
 │   ├── cli.py           # argumentos, validación y códigos de salida
-│   ├── exceptions.py    # NameGenError, LexiconError, ConfigError
+│   ├── exceptions.py    # PysionError, LexiconError, ConfigError
 │   ├── generator.py     # bucle que genera, filtra, puntúa y ordena
 │   ├── languages.py     # perfiles de idioma: carga, validación y fusión de reglas
 │   ├── lexicon.py       # carga segura de diccionarios y palabras base
@@ -450,19 +453,19 @@ Cada módulo tiene una sola responsabilidad y ninguno pasa de unas 160 líneas.
 
 ### Añadir un tema
 
-Crea un fichero `.txt` en `namegen/data/themes/`. Aparecerá automáticamente en `--themes`:
+Crea un fichero `.txt` en `pysion/data/themes/`. Aparecerá automáticamente en `--themes`:
 
 ```bash
-printf "# Mitología\nzeus\natenea\nodin\nfreya\n" > namegen/data/themes/mitologia.txt
-python3 -m namegen -t mitologia
+printf "# Mitología\nzeus\natenea\nodin\nfreya\n" > pysion/data/themes/mitologia.txt
+python3 -m pysion -t mitologia
 ```
 
 ### Añadir un idioma
 
-Crea un directorio en `namegen/data/languages/` con el código del idioma. Aparecerá automáticamente en `--lang`:
+Crea un directorio en `pysion/data/languages/` con el código del idioma. Aparecerá automáticamente en `--lang`:
 
 ```text
-namegen/data/languages/fr/
+pysion/data/languages/fr/
 ├── profile.json
 ├── words.txt       # obligatorio: una palabra por línea
 ├── prefixes.txt    # opcional
@@ -503,7 +506,7 @@ python3 -m unittest tests.test_languages -v
 
 ### Añadir una estrategia
 
-Escribe una función con la firma `(rng, lexicon, anchor) -> Candidate | None` en [`namegen/strategies.py`](namegen/strategies.py) y regístrala en `STRATEGIES`. La línea de comandos la detecta sola.
+Escribe una función con la firma `(rng, lexicon, anchor) -> Candidate | None` en [`pysion/strategies.py`](pysion/strategies.py) y regístrala en `STRATEGIES`. La línea de comandos la detecta sola.
 
 `anchor` es la palabra base de `-w`, o `None` si no se indicó ninguna. Usa `_pick_words()` (para varias palabras) o `_one_word()` (para una), que ya incluyen la palabra base cuando la hay:
 
@@ -526,9 +529,9 @@ STRATEGIES: dict[str, Strategy] = {
 ### Ajustar reglas o puntuación
 
 - Reglas de un idioma: su `profile.json`.
-- Umbrales genéricos: `PhoneticRules` en [`namegen/rules.py`](namegen/rules.py).
+- Umbrales genéricos: `PhoneticRules` en [`pysion/rules.py`](pysion/rules.py).
 - Combinaciones prohibidas y dobles permitidas: `FORBIDDEN_BIGRAMS`, `ALLOWED_DOUBLES`, `ALLOWED_FINAL_CLUSTERS`.
-- Pesos e ideales de la puntuación: `WEIGHTS`, `IDEAL_LENGTH`, etc., en [`namegen/scoring.py`](namegen/scoring.py).
+- Pesos e ideales de la puntuación: `WEIGHTS`, `IDEAL_LENGTH`, etc., en [`pysion/scoring.py`](pysion/scoring.py).
 
 ---
 
@@ -545,7 +548,7 @@ STRATEGIES: dict[str, Strategy] = {
 Así puedes usarlo en scripts:
 
 ```bash
-python3 -m namegen -n 100 -f csv > nombres.csv || echo "Revisa los filtros (código $?)"
+python3 -m pysion -n 100 -f csv > nombres.csv || echo "Revisa los filtros (código $?)"
 ```
 
 ---
@@ -568,3 +571,9 @@ Cubren la división en sílabas, la unión suave, cada regla de rechazo, la punt
 - **Las mutaciones estilísticas son universales.** `mutate` aplica los mismos cambios en todos los idiomas (c→k, s→z, v→w…). Si un cambio produce una letra ajena al idioma, la regla `letra_ajena` descarta el nombre, pero no se generan variantes propias de cada idioma.
 - **Diccionarios pequeños.** Cada idioma trae unas 65-85 palabras escogidas. Para más variedad, añade un diccionario grande del idioma con `--dict`.
 - **No filtra significados.** Un nombre inventado puede coincidir con una palabra real de otro idioma o tener connotaciones no deseadas. Revisa los finalistas.
+
+---
+
+## Licencia
+
+Distribuido bajo la licencia MIT. Consulta el fichero [LICENSE](LICENSE).

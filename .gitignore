@@ -1,0 +1,17 @@
+# Python: bytecode y cachés
+__pycache__/
+*.py[cod]
+
+# Entornos virtuales
+.venv/
+venv/
+
+# Resultados generados por el usuario (p. ej. `-f csv > nombres.csv`)
+*.csv
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*:Zone.Identifier

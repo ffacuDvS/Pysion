@@ -7,14 +7,14 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest import mock
 
-from namegen import languages
-from namegen.cli import EXIT_LEXICON, EXIT_OK, main
-from namegen.exceptions import LexiconError
-from namegen.generator import GeneratorConfig, generate
-from namegen.languages import available_languages, load_language, load_languages, merge_rules
-from namegen.lexicon import build_lexicon
-from namegen.phonetics import normalize
-from namegen.rules import PhoneticRules, check
+from pysion import languages
+from pysion.cli import EXIT_LEXICON, EXIT_OK, main
+from pysion.exceptions import LexiconError
+from pysion.generator import GeneratorConfig, generate
+from pysion.languages import available_languages, load_language, load_languages, merge_rules
+from pysion.lexicon import build_lexicon
+from pysion.phonetics import normalize
+from pysion.rules import PhoneticRules, check
 
 EXPECTED = {"de", "en", "es", "it", "la", "pt", "ru"}
 BASE = PhoneticRules(min_length=3, max_length=14)

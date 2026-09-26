@@ -12,8 +12,8 @@ import random
 from dataclasses import dataclass
 from typing import Callable, Sequence
 
-from namegen.lexicon import Lexicon
-from namegen.phonetics import is_vowel, join_smooth, syllabify
+from pysion.lexicon import Lexicon
+from pysion.phonetics import is_vowel, join_smooth, syllabify
 
 
 @dataclass(frozen=True)

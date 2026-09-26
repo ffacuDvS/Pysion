@@ -10,7 +10,7 @@ Los conjuntos de letras son campos de PhoneticRules: los valores por defecto
 import re
 from dataclasses import dataclass
 
-from namegen.phonetics import INSEPARABLE_CLUSTERS, consonant_units, cv_pattern
+from pysion.phonetics import INSEPARABLE_CLUSTERS, consonant_units, cv_pattern
 
 # Dobles letras aceptables (existen en español/inglés y se leen con naturalidad).
 ALLOWED_DOUBLES = frozenset({"ll", "rr", "ss", "nn", "tt", "ee", "oo", "mm", "ff"})

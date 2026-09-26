@@ -14,9 +14,9 @@ import re
 from dataclasses import dataclass, replace
 from typing import Iterable
 
-from namegen.exceptions import LexiconError
-from namegen.lexicon import AFFIX_MIN_LEN, DATA_DIR, load_wordfile, read_text_file
-from namegen.rules import PhoneticRules
+from pysion.exceptions import LexiconError
+from pysion.lexicon import AFFIX_MIN_LEN, DATA_DIR, load_wordfile, read_text_file
+from pysion.rules import PhoneticRules
 
 LANGUAGES_DIR = DATA_DIR / "languages"
 
