@@ -157,6 +157,7 @@ Con `--type` eliges para qué es el nombre. Cada tipo ajusta el **formato** y al
 
 | Tipo | Formato | Ejemplo |
 |---|---|---|
+| `sigla` | Sigla/acrónimo en mayúsculas (2-4 letras) | *FAM*, *RBI*, *H&H* |
 | `empresa` | Título + calificador opcional | *Cipher Security*, *Ciproto Systems* |
 | `software` | Título + calificador opcional | *Vequa Suite*, *Verotrix* |
 | `emprendimiento` | Título + calificador opcional | *Vequa Labs*, *Vetolo* |
@@ -182,6 +183,24 @@ Cómo funciona:
 - **Calificador**: en los tipos comerciales, una parte de los nombres recibe una palabra aparte (`Security`, `Technologies`, `Labs`, `Suite`…), elegida al azar. Es lo que los sufijos pegados (`-ix`, `-ia`) no pueden dar. Solo afecta a lo que se muestra: el nombre base (y el dominio que comprobarías) sigue siendo la palabra inventada. En el pipe hacia [`pysion.check`](#comprobar-disponibilidad), se comprueba ese nombre base, no el calificador.
 - **Formato**: `usuario` y `script` salen en minúsculas (un usuario no es *Cipher* sino *cipher*); el resto en Título.
 - **Idiomas y longitud por defecto**: por ejemplo `ciudad` usa latín e italiano y nombres algo más largos. Todo esto son solo valores por defecto: si indicas `-l`, `-t`, `--min-length` o `--max-length`, tus valores mandan.
+
+### Siglas y combinación de tipos
+
+El tipo `sigla` genera acrónimos de 2 a 4 letras (como IBM, IKEA, BMW), con más consonantes que vocales para que suenen a marca, y de vez en cuando la forma con `&` (H&H). No usa el motor de mezcla de palabras: tiene su propio generador.
+
+Puedes indicar **varios tipos separados por coma**. Lo más útil es combinar `sigla` con un tipo comercial para que la sigla reciba un calificador:
+
+```bash
+python3 -m pysion --type sigla,empresa -n 8 --seed 5
+```
+
+```text
+  2. EGA Consulting  100.0  [sigla]
+  3. RBI Solutions   100.0  [sigla]
+  5. UXEV Security   100.0  [sigla]
+```
+
+El orden da igual (`sigla,empresa` = `empresa,sigla`): las siglas mandan la forma (mayúsculas) y `empresa` aporta los calificadores. En el pipe hacia [`pysion.check`](#comprobar-disponibilidad) se comprueba la sigla en minúsculas (`ega`), no el calificador.
 
 Los tipos están definidos en [`pysion/data/presets.json`](pysion/data/presets.json) y son editables: puedes cambiar los calificadores o añadir un tipo nuevo sin tocar código.
 
@@ -501,7 +520,7 @@ python3 -m pysion -w cipher -d cyber.txt --no-themes -n 30 --history vistos.txt 
 | Opción | Por defecto | Descripción |
 |---|---|---|
 | `-n`, `--count` | `20` | Cantidad de nombres a generar (1-1000) |
-| `--type TIPO` | — | [Tipo de nombre](#tipos-de-nombre): `empresa`, `software`, `emprendimiento`, `usuario`, `script`, `ciudad`, `pueblo`, `barrio`, `calle` |
+| `--type TIPO` | — | [Tipo(s) de nombre](#tipos-de-nombre) separados por coma: `sigla`, `empresa`, `software`, `emprendimiento`, `usuario`, `script`, `ciudad`, `pueblo`, `barrio`, `calle`. Combinables, p. ej. `sigla,empresa` |
 | `-t`, `--themes` | todos | Temas incluidos, separados por comas |
 | `-d`, `--dict FICHERO` | — | Diccionario adicional (una palabra por línea). Se puede repetir |
 | `-l`, `--lang` | — | [Idiomas](#idiomas) separados por comas: `la`, `en`, `es`, `pt`, `it`, `de`, `ru` |
@@ -650,8 +669,9 @@ pysion/
 │   ├── languages.py     # perfiles de idioma: carga, validación y fusión de reglas
 │   ├── lexicon.py       # carga segura de diccionarios y palabras base
 │   ├── output.py        # salida en texto, JSON o CSV, y estadísticas
+│   ├── acronyms.py      # generador de siglas (--type sigla)
 │   ├── phonetics.py     # normalización, patrón CV, sílabas, dígrafos, unión suave
-│   ├── presets.py       # tipos de nombre (--type): formato y calificadores
+│   ├── presets.py       # tipos de nombre (--type): formato, calificadores y combinación
 │   ├── rules.py         # reglas de pronunciabilidad
 │   ├── scoring.py       # puntuación de armonía
 │   ├── strategies.py    # estrategias de generación (con soporte de palabra base)
@@ -664,6 +684,7 @@ pysion/
     ├── test_generator.py       # generador, léxico y CLI
     ├── test_languages.py       # idiomas, transliteración y calibración
     ├── test_phonetics.py       # sílabas, normalización, unión suave
+    ├── test_acronyms.py        # siglas (--type sigla) y combinación de tipos
     ├── test_presets.py         # tipos de nombre (--type)
     └── test_rules_scoring.py   # reglas y puntuación
 ```
@@ -680,6 +701,7 @@ El constructor de diccionarios es un subpaquete independiente: comparte con el g
 - **Reglas y puntuación van separadas.** Puedes endurecer o relajar una sin romper la otra.
 - **Palabras base inyectadas, no filtradas.** Con `-w`, la palabra base se pasa a la estrategia en cada intento, en vez de generar al azar y quedarse con los nombres que la contengan. Así no se desperdician intentos, y funciona aunque la palabra base sea una entre miles del diccionario.
 - **Tipos como datos.** Los `--type` viven en un JSON: definen formato, calificadores y defaults, sin tocar el motor de generación. El calificador solo cambia la presentación, así el pipe y la comprobación de dominios siguen usando el nombre base.
+- **Las siglas son un generador aparte.** Un acrónimo no es una palabra silábica, así que tiene su propio camino (`acronyms.py`) en vez de forzar el motor de mezcla. Aun así reutiliza la misma salida, historial y pipe. Combinar tipos (`sigla,empresa`) funde sus reglas: el modo de siglas manda la forma y los demás aportan calificadores.
 - **Idiomas como datos, no como código.** Cada idioma es un directorio con ficheros de texto y un JSON. Añadir o ajustar uno no requiere tocar Python, y las reglas de un idioma no afectan a los demás.
 - **Reglas fonéticas basadas en la sílaba.** Un grupo de consonantes interno es válido si se puede dividir en *final de sílaba + inicio de sílaba* válidos para el idioma. Es más fiel a cómo funcionan los idiomas que un simple límite de consonantes seguidas.
 - **Fusión permisiva de idiomas.** Al combinar idiomas, las listas de lo permitido se unen y las de lo prohibido se intersecan. Así ningún idioma del grupo queda bloqueado por las restricciones de otro.
@@ -817,7 +839,7 @@ python3 -m pysion -n 100 -f csv > nombres.csv || echo "Revisa los filtros (códi
 python3 -m unittest discover -s tests -v
 ```
 
-Cubren la división en sílabas, la unión suave, cada regla de rechazo, la puntuación, la reproducibilidad con semilla, la carga de diccionarios (temas desconocidos, ficheros inexistentes, acentos), las palabras base (cada nombre deriva de una, validación, uso sin temas), los idiomas (carga y validación de perfiles, rechazo de rutas no permitidas, fusión de reglas, transliteración y calibración con palabras reales), los tipos de nombre (carga, formato, calificador y prioridad de las opciones del usuario), el constructor de diccionarios (cada formato, cabeceras y columnas de CSV, filtros, fusión sin duplicados, escritura atómica y descargas web) y los códigos de salida.
+Cubren la división en sílabas, la unión suave, cada regla de rechazo, la puntuación, la reproducibilidad con semilla, la carga de diccionarios (temas desconocidos, ficheros inexistentes, acentos), las palabras base (cada nombre deriva de una, validación, uso sin temas), los idiomas (carga y validación de perfiles, rechazo de rutas no permitidas, fusión de reglas, transliteración y calibración con palabras reales), los tipos de nombre (carga, formato, calificador y prioridad de las opciones del usuario), las siglas (forma, unicidad, variante con &, y combinación con otros tipos), el constructor de diccionarios (cada formato, cabeceras y columnas de CSV, filtros, fusión sin duplicados, escritura atómica y descargas web) y los códigos de salida.
 
 Los tests web no necesitan internet: levantan un servidor HTTP local. El test de PDF se omite si `pypdf` no está instalado. Los del comprobador de disponibilidad tampoco tocan la red: simulan las respuestas HTTP.
 

@@ -21,7 +21,8 @@ from pysion.languages import LanguageProfile, available_languages, load_language
 from pysion.lexicon import available_themes, build_lexicon, load_wordfile, normalize_anchors
 from pysion.output import RENDERERS, render_stats
 from pysion.phonetics import normalize
-from pysion.presets import Preset, apply_format, available_presets, load_preset
+from pysion.acronyms import generate_acronyms
+from pysion.presets import Preset, apply_format, available_presets, combine_presets
 from pysion.rules import PhoneticRules
 from pysion.strategies import STRATEGIES
 
@@ -75,8 +76,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help="palabra base: todos los nombres derivarán de ella; repetible")
     parser.add_argument("--no-themes", "--only-dicts", dest="no_themes", action="store_true",
                         help="no usar los temas incluidos; solo --dict, --word y/o --lang")
-    parser.add_argument("--type", dest="preset", metavar="TIPO",
-                        help="tipo de nombre (fija caso, calificador y valores por defecto). "
+    parser.add_argument("--type", dest="preset", type=_csv_list, default=[], metavar="TIPO",
+                        help="tipo(s) de nombre separados por coma (fija caso, calificador y "
+                             "valores por defecto; p. ej. 'sigla,empresa'). "
                              f"Disponibles: {', '.join(available_presets()) or '(ninguno)'}")
     parser.add_argument("-s", "--strategies", type=_csv_list, default=list(STRATEGIES),
                         help=f"estrategias separadas por coma. Disponibles: {', '.join(STRATEGIES)}")
@@ -153,22 +155,30 @@ def _selected_themes(args: argparse.Namespace) -> list[str] | None:
 
 
 def run(args: argparse.Namespace) -> int:
-    preset = load_preset(args.preset) if args.preset else None
+    preset = combine_presets(args.preset) if args.preset else None
     # Los idiomas del preset solo se aplican si el usuario no indicó -l.
     if preset and preset.languages and not args.langs:
         args.langs = list(preset.languages)
 
     languages = load_languages(args.langs)
     config = _config_from_args(args, languages, preset)
-    lexicon = build_lexicon(themes=_selected_themes(args), extra_files=args.dicts,
-                            anchors=args.words, languages=languages)
-    logger.debug("Léxico: %d palabras, %d prefijos, %d sufijos, palabras base: %s, idiomas: %s",
-                 len(lexicon.words), len(lexicon.prefixes), len(lexicon.suffixes),
-                 ", ".join(lexicon.anchors) or "-",
-                 ", ".join(lang.name for lang in languages) or "-")
-
     rng = random.Random(args.seed)  # no criptográfico: no se necesita
-    result = generate(lexicon, config, rng)
+
+    if preset and preset.mode == "acronym":
+        # Las siglas no usan léxico ni estrategias: su propio generador.
+        result = generate_acronyms(
+            config.count, config.rules.min_length, config.rules.max_length,
+            config.exclude, preset.ampersand_ratio, rng,
+        )
+    else:
+        lexicon = build_lexicon(themes=_selected_themes(args), extra_files=args.dicts,
+                                anchors=args.words, languages=languages)
+        logger.debug("Léxico: %d palabras, %d prefijos, %d sufijos, palabras base: %s, idiomas: %s",
+                     len(lexicon.words), len(lexicon.prefixes), len(lexicon.suffixes),
+                     ", ".join(lexicon.anchors) or "-",
+                     ", ".join(lang.name for lang in languages) or "-")
+        result = generate(lexicon, config, rng)
+
     if preset:
         apply_format(result, preset, rng)
 

@@ -49,10 +49,15 @@ class ScoredName:
     # Texto a mostrar cuando un preset cambia el caso o añade un calificador.
     # Si es None, se muestra el nombre capitalizado (comportamiento por defecto).
     display_override: str | None = None
+    # Forma "bonita" del nombre base cuando no se deriva por caso (siglas:
+    # name="ibm" pero base_display="IBM", o "H&H"). La usa apply_format.
+    base_display: str | None = None
 
     @property
     def display(self) -> str:
-        return self.display_override if self.display_override is not None else self.name.capitalize()
+        if self.display_override is not None:
+            return self.display_override
+        return self.base_display if self.base_display is not None else self.name.capitalize()
 
 
 @dataclass

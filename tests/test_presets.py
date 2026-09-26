@@ -8,7 +8,7 @@ from pysion.exceptions import ConfigError
 from pysion.generator import GenerationResult, ScoredName
 from pysion.presets import apply_format, available_presets, load_preset
 
-EXPECTED = {"empresa", "software", "emprendimiento", "usuario", "script",
+EXPECTED = {"sigla", "empresa", "software", "emprendimiento", "usuario", "script",
             "ciudad", "pueblo", "barrio", "calle"}
 
 
@@ -24,7 +24,7 @@ class TestLoad(unittest.TestCase):
         for name in available_presets():
             with self.subTest(preset=name):
                 p = load_preset(name)
-                self.assertIn(p.case, ("lower", "title"))
+                self.assertIn(p.case, ("lower", "title", "upper"))
                 self.assertTrue(0 <= p.qualifier_ratio <= 1)
 
     def test_unknown_preset(self):

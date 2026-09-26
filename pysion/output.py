@@ -16,10 +16,8 @@ def render_text(result: GenerationResult, stream: TextIO) -> None:
     # calificador ("Cipher Security") y la columna de puntuación se desalinearía.
     width = max((len(n.display) for n in result.names), default=6)
     for i, item in enumerate(result.names, start=1):
-        stream.write(
-            f"{i:>3}. {item.display:<{width}}  {item.score:5.1f}  "
-            f"[{item.strategy}: {_sources(item)}]\n"
-        )
+        origin = f"[{item.strategy}: {_sources(item)}]" if item.sources else f"[{item.strategy}]"
+        stream.write(f"{i:>3}. {item.display:<{width}}  {item.score:5.1f}  {origin}\n")
 
 
 def render_json(result: GenerationResult, stream: TextIO) -> None:

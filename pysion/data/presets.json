@@ -1,57 +1,109 @@
 {
+  "sigla": {
+    "description": "Sigla o acrónimo (IBM, IKEA, BMW); combinable con --type empresa",
+    "mode": "acronym",
+    "case": "upper",
+    "min_length": 2,
+    "max_length": 4,
+    "ampersand_ratio": 0.08
+  },
   "empresa": {
     "description": "Nombre de empresa o marca, con calificador opcional (Cipher Security)",
     "case": "title",
-    "min_length": 4, "max_length": 9,
-    "qualifiers": ["Security", "Technologies", "Systems", "Solutions", "Labs", "Group", "Consulting"],
+    "min_length": 4,
+    "max_length": 9,
+    "qualifiers": [
+      "Security",
+      "Technologies",
+      "Systems",
+      "Solutions",
+      "Labs",
+      "Group",
+      "Consulting"
+    ],
     "qualifier_ratio": 0.5
   },
   "software": {
     "description": "Nombre de software o producto (Cipher Suite)",
     "case": "title",
-    "min_length": 4, "max_length": 9,
-    "qualifiers": ["Suite", "Studio", "Core", "Kit", "App", "OS", "Engine"],
+    "min_length": 4,
+    "max_length": 9,
+    "qualifiers": [
+      "Suite",
+      "Studio",
+      "Core",
+      "Kit",
+      "App",
+      "OS",
+      "Engine"
+    ],
     "qualifier_ratio": 0.4
   },
   "emprendimiento": {
     "description": "Nombre de emprendimiento o startup (Cipher Labs)",
     "case": "title",
-    "min_length": 4, "max_length": 9,
-    "qualifiers": ["Labs", "Studio", "Ventures", "Works", "Collective", "Co"],
+    "min_length": 4,
+    "max_length": 9,
+    "qualifiers": [
+      "Labs",
+      "Studio",
+      "Ventures",
+      "Works",
+      "Collective",
+      "Co"
+    ],
     "qualifier_ratio": 0.5
   },
   "usuario": {
     "description": "Nombre de usuario / handle en minúsculas, sin calificador",
     "case": "lower",
-    "min_length": 4, "max_length": 12
+    "min_length": 4,
+    "max_length": 12
   },
   "script": {
     "description": "Nombre de script o herramienta en minúsculas (backupsync)",
     "case": "lower",
-    "min_length": 4, "max_length": 10
+    "min_length": 4,
+    "max_length": 10
   },
   "ciudad": {
     "description": "Nombre de ciudad, con sabor latino/italiano",
     "case": "title",
-    "min_length": 5, "max_length": 11,
-    "languages": ["la", "it"]
+    "min_length": 5,
+    "max_length": 11,
+    "languages": [
+      "la",
+      "it"
+    ]
   },
   "pueblo": {
     "description": "Nombre de pueblo, con sabor español/latino",
     "case": "title",
-    "min_length": 4, "max_length": 10,
-    "languages": ["es", "la"]
+    "min_length": 4,
+    "max_length": 10,
+    "languages": [
+      "es",
+      "la"
+    ]
   },
   "barrio": {
     "description": "Nombre de barrio",
     "case": "title",
-    "min_length": 4, "max_length": 10,
-    "languages": ["es", "it"]
+    "min_length": 4,
+    "max_length": 10,
+    "languages": [
+      "es",
+      "it"
+    ]
   },
   "calle": {
     "description": "Nombre de calle (Avenida <nombre>)",
     "case": "title",
-    "min_length": 4, "max_length": 11,
-    "languages": ["es", "la"]
+    "min_length": 4,
+    "max_length": 11,
+    "languages": [
+      "es",
+      "la"
+    ]
   }
 }
